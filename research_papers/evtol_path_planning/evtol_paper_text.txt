@@ -1,0 +1,901 @@
+IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026                                                                 825
+
+
+
+
+       A Deep Reinforcement Learning Path Planning
+          Method for Urban Heavy-Lift eVTOL
+         Considering Motion Attitude Constraints
+    Wenjie Liu , Chao Yang , Member, IEEE, Weida Wang , Tianqi Qie , Graduate Student Member, IEEE,
+                                  Yincong Chen, and Shuanghao Yong
+
+
+
+   Abstract— Heavy-lift electric vertical take-off and landing                 the growing demand for urban transportation, owing to their
+(eVTOL) aircraft play a vital role in advancing the low-altitude               superior mobility and relatively low operational costs [2]. The
+economy by enabling the transportation of high payloads in                     development of smart urban environments calls for eVTOLs
+dense urban environments. However, autonomous navigation in
+such environments presents significant challenges for heavy-lift               capable of autonomously performing diverse flight tasks,
+eVTOLs due to the large moments of inertia and limited actuator                including urban air mobility [3], logistics distribution [4],
+capabilities, which hinder agile maneuvers and effective obstacle              environmental monitoring [5], and emergency response [6].
+avoidance in confined spaces. Motivated by the mentioned issue,                Heavy-lift eVTOLs have enormous potential for urban service
+a deep reinforcement learning (DRL) path planning method that                  applications due to their high payload and strong adapt-
+explicitly incorporates a data-driven dynamic flight characteristic
+model (DFCM) is introduced to plan safe and feasible flight paths              ability for limited environments [7]. A growing number of
+for heavy-lift eVTOLs. First, the DFCM is formulated to fully                  prototypes have been developed by leading companies, includ-
+consider the flight control performance of the heavy-lift eVTOL.               ing Joby Aviation, Xpeng, and Ehang [8]. The heavy-lift
+And then, utilizing the built DFCM, the real-time feasible attitude            eVTOL prototypes mentioned above are designed to enhance
+domain can be obtained to constrain the autonomous motion
+                                                                               urban transportation by increasing payload capacity, thereby
+attitude of the heavy-lift eVTOL. Third, the path planning
+method considering motion attitude constraints is established                  improving overall transportation efficiency. To further improve
+through the DRL process. The accuracy of the proposed model                    transportation efficiency, the autonomous flight capability for
+has been verified using real flight data, with the corresponding               heavy-lift eVTOLs is gaining momentum [9].
+correlation coefficients amounting to 0.9723. The experimental                    Among many advanced technologies in the autonomous
+planning results show that the proposed method generate safe
+                                                                               flight, path planning is responsible for providing safe and
+and executable trajectories within the feasible attitude domain.
+                                                                               feasible paths in complex urban environments [10]. There
+   Index Terms— Autonomous flight, deep reinforcement learning                 are extensive works on path planning algorithms, which can
+(DRL), electrical vertical take-off and landing (eVTOL), path
+planning, urban air mobility.                                                  be mainly categorized into local planning method and global
+                                                                               planning method [11]. Local planning methods include the
+                       I. I NTRODUCTION                                        rapidly-exploring random tree method [12], the Interfered
+
+R     ECENTLY, the low-altitude economy has been devel-
+      oped rapidly and expanded the transportation landscape.
+As the core equipment of the low-altitude economy, low-
+                                                                               fluid dynamical system method [13], the artificial potential
+                                                                               field (APF) method [14], the primitive-based method [15],
+                                                                               etc. These methods search for feasible paths by sampling
+altitude aircraft, which utilize distributed electric drive systems            or reacting with the surrounding obstacles to find collision-
+and with electric power serving as their energy source, is the                 free paths [16]. The above methods perform well with the
+modern advances in transportation electrification [1]. Electric                local map. In the large region, the sampling or reacting
+vertical take-off and landing (eVTOL) aircraft, a subset of                    efficiency will be decreased with the increasing of planning
+low-altitude aircraft, hold significant promise for addressing                 range. Global planning method includes the A∗ method,
+                                                                               intelligent optimization method [17], deep reinforcement
+  Received 24 July 2025; revised 21 September 2025; accepted
+11 October 2025. Date of publication 15 October 2025; date of current          learning (DRL) method [18], etc. By leveraging mathematical
+version 16 January 2026. This work was supported by the Natural Science        formulation over a wider planning region, these methods
+Foundation of Chongqing, China, under Grant CSTB2022NSCQ-MSX1056.              aim to identify the optimal path with the highest expected
+(Corresponding author: Weida Wang.)
+  Wenjie Liu, Chao Yang, and Weida Wang are with the School of Mechanical      reward. However, the effectiveness of intelligent optimization
+Engineering, Beijing Institute of Technology, Beijing 100081, China, and       algorithms is often constrained by model complexity and
+also with the Yangtze Delta Region Academy, Beijing Institute of Technol-      computational overhead [19]. DRL methods are capable of
+ogy, Jiaxing 314019, China (e-mail: lwj_3026@163.com; cyang@bit.edu.cn;
+wangwd0430@163.com).                                                           solving high-dimensional planning and obstacle avoidance
+  Tianqi Qie, Yincong Chen, and Shuanghao Yong are with the School             problems [20]. Moreover, they can be effectively combined
+of Mechanical Engineering, Beijing Institute of Technology, Beijing            with local planning methods. DRL methods have shown the
+100081, China (e-mail: tianqi_qie@bit.edu.cn; ycchen0429@outlook.com;
+legendyong@outlook.com).                                                       potential to seamlessly switch between navigation and obstacle
+  Digital Object Identifier 10.1109/TTE.2025.3621634                           avoidance tasks [21].
+               2332-7782 © 2025 IEEE. All rights reserved, including rights for text and data mining, and training of artificial intelligence
+                     and similar technologies. Personal use is permitted, but republication/redistribution requires IEEE permission.
+                                     See https://www.ieee.org/publications/rights/index.html for more information.
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+826                                                      IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+   The DRL method obtains flight paths based on the interac-
+tion between the agent and the environment [22]. It is capable
+of handling high-dimensional state space and action space,
+which allows it to address complex scenarios [23]. An accurate
+aircraft model is fundamental to the path planning method for
+representing its dynamic characteristics [24]. Existing studies
+on aircraft modeling that consider dynamic characteristics
+can be classified into physics-based models and data-driven
+models [25]. Physics-based aircraft models are established
+based on the fundamental dynamic physical laws [26]. The
+kinematic model and dynamic model are usually coupled to
+formulate the motion state of the agent for the path planning
+                                                                            Fig. 1.   Configuration of the heavy-lift eVTOL powertrain and controllers.
+algorithm [27]. Although physics-based models can represent
+the motion dynamics characteristics of the agent, there are
+still discrepancies between the model and the actual aircraft,                                                TABLE I
+as high speeds and accelerations can lead to complex aero-                                        PARAMETERS OF THE A IRCRAFT
+dynamic effect [28]. To obtain a high-accuracy model and
+lower the discrepancies, the data-based models are learning
+the flight path from large demonstrations to capture the motion
+state of the agent [29]. The data-based model can demonstrate
+the capability to accurately model highly nonlinear dynamical
+effects to fly agile maneuvers for the super-mini aircraft [30].
+Data-based models have garnered increasing attention in recent
+studies, while their reliability and interpretability remain insuf-
+ficiently explored [31]. Apart from computational complexity
+and reliability, integrating these models into the planning
+pipeline directly still presents challenges. Therefore, integrat-              3) The proposed method is validated in multiple simulated
+ing both data-based model and physics-based model into the                         urban scenarios and real experimental flight test, demon-
+DRL planning pipelines is a promising way to capture dynamic                       strating the proposed method is effective in various
+characteristics of the aircraft.                                                   scenarios.
+   The aforementioned studies provide valuable references for                  The rest of this article is organized as follows. The heavy-lift
+the path planning of the super-mini aircraft. However, there                eVTOL aimed in this article, scenario, as well as the path
+remains a significant gap in applying these path planning                   planning problem are described in Section II. In Section III, the
+methods to heavy-lift eVTOLs [32]. The heavy-lift eVTOLs                    DRL planning method considering motion attitude constraints
+exhibit significantly higher moments of inertia and more                    is constructed utilizing established DFCM. In Section IV, the
+constrained actuation capabilities, which markedly impair the               results and discussion are presented to evaluate the proposed
+feasibility of executing planned trajectories [33]. In complex              method. And Section V concludes this article.
+low-altitude environments, actuator limits must be considered
+during path planning. Without such constraints, excessive
+attitude changes may exceed system capabilities, which might                                    II. P ROBLEM F ORMULATION
+significantly influence stable autonomous flight. Conversely,
+                                                                              In this section, the studied heavy-lift eVTOL is introduced.
+overly conservative planning results in longer paths and
+                                                                            Next, the scenario is described. Finally, the path planning
+higher energy consumption, reducing mission efficiency. Thus,
+                                                                            problem for the aircraft is formulated.
+how to naturally plan a path for the heavy-lift eVTOL
+has become a pivotal challenge. Considering the need to
+adapt to the attitude adjustment ability of eVTOLs, a DRL
+                                                                            A. Heavy-Lift eVTOL Description
+path planning method considering attitude constraints is
+established in this article. The main contributions are as                     The heavy-lift eVTOL adopts an octo-rotor airframe con-
+follows.                                                                    figuration with 16 coaxial lifting propellers. Driven motors
+   1) A DRL-based path planning framework is proposed for                   are connected directly to each coaxial lifting propeller and
+       heavy-lift eVTOLs operating in complex urban low-                    driving them to produce lifting force. Each propeller unit
+       altitude environments, enabling the agent to generate                consists of two coaxial lifting propellers. The rotors are fixed
+       safe and executable trajectories within the feasible                 on the driving motors. As shown in Fig. 1, by adjusting the
+       attitude domain.                                                     rotation speed of each rotor, the motion attitude of aircraft
+   2) A dynamic flight characteristic model (DFCM) is                       is changed. Motor control commands are transmitted through
+       constructed to obtain a feasible attitude domain to                  communication bus. And it is powered by an electric power
+       extract representations of the eVTOL attitude adjustment             system through electrical bus.
+       capabilities.                                                           Parameters of the heavy-lift eVTOL are given in Table I.
+
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                          827
+
+
+
+
+                                                                             Fig. 3.   Schematic of urban environment modeling.
+
+Fig. 2.   Coordinate system and diagram of the heavy-lift eVTOL.
+
+                                                                             Complex structures are represented by combining multiple
+                                                                             cylinders, which is shown in Fig. 3.
+  1) Assumptions:
+                                                                               Key spatial features are effectively captured to support
+  Assumption 1: The frame of the aircraft is rigid and sym-
+                                                                             autonomous navigation and collision avoidance. The obstacle
+metrical.
+                                                                             can be represented as
+  Assumption 2: The octo-rotor with 16 coaxial lifting pro-
+                                                                                                     = x , y, z
+                                                                                                                 
+pellers is rigid and no blade flapping occurs.                                                                                       (4)
+  Assumption 3: The global coordinate system OW −
+X w Yw Z w is an inertial coordinate system, and the acceleration            where x , y , and z are the longitudinal, lateral, and altitudi-
+of gravity does not change with attitude.                                    nal positions of the obstacle in the global frame, respectively.
+  Assumption 4: The environment is assumed to be static,                     O is the obstacle space, which is a set of obstacles and
+with no external wind or dynamic obstacles considered.                       represented as
+  Following above assumptions, global coordinate system                                 O = { 1,        2, . . . ,   obs , . . . ,   n , 1 ≤ obs ≤ n}.   (5)
+Ow − X w Yw Z w and aircraft coordinate system Ob − X b Yb Z b ,
+as shown in Fig. 2, are used to express the motion of                           The collision-free space               col−free can be obtained as
+the aircraft in the driving environment. The rotation matrix
+                                                                                         Ocol−free = { |∥ obs − p∥ >                   r , ∀ obs ∈ O}    (6)
+between Ow − X w Yw Z w and Ob − X b Yb Z b can be written as
+           
+              cψ cθ cψ sθ sϕ − sψ cϕ cψ sθ cϕ + sψ sϕ
+                                                                            where      r is the radius of the envelope circle of the obstacle.
+
+     R b =  sψ cθ     sψ sθ sϕ +cψ cϕ   sψ sθ cϕ − cψ sϕ    (1)
+               −sθ           cθ sϕ              cθ cϕ                        C. Path Planning Problem Description
+where s1 and c1 are sin 1 and cos 1, respectively. And the                      The objective function of the path planning problem is then
+coordinate system conversion equation is written as                          discretized and solved as a nonlinear programming (NLP)
+                                                                             formulation
+                               pw = R b pb                            (2)              N −1
+                                                                                       X
+where pw is the position of eVTOL in global frame. The                          min           L(xk , u k )
+                                                                                  u
+driving information is obtained from the mounted sensors.                              k=0
+The position and attitude can be obtained through IMU, gyro,                    s.t. xk+1 = f (xk , u k ),           x0 = xinit , xk ∈ X̄k , u k ∈ Ūk   (7)
+barometric altimeter, etc. The position vector of the aircraft in
+                                                                             where xk is state vector at time step k, which include the
+the global frame is written as p, and the attitude angle vector
+                                                                              p and 2 of the eVTOL. u k is control input vector at time
+is written as 2, which can be written as follows:
+                                      iT                                     step k, which include the rotation speeds of each propeller
+                                                                             unit. L(xk , u k ) is the objective function that value the planned
+                          h
+                  p= x y z
+                                                              (3)            path considering path safety, efficiency, and feasibility. f (·) is
+                  2 = ϕ θ ψ T
+                           h            i
+                                                                             the discrete-time system dynamics function describing the
+                                                                             transition of the system from xk to xk+1 under control input
+where x, y, and z are longitudinal, lateral, and altitude posi-
+                                                                             u k . xinit is the initial condition of the system. X̄ k is the feasible
+tions of the aircraft, respectively. ϕ, θ, and ψ are the yaw
+                                                                             state set, which constrains the state variables to remain within
+angle, pitch angle, and roll angle of the aircraft, respectively.
+                                                                             safe operational limits. Ūk is the feasible input set, defining
+                                                                             bounds on the actuator commands.
+B. Scenario Description                                                          During its autonomous flight in dense environment, Ocol−free
+   The heavy-lift eVTOL is used for delivery in complex                      is decreased with the increasing number of obstacles. And
+urban environments. During autonomous flight, flight space                   the large angular displacements are frequently required to
+is limited by dense obstacles such as buildings and tall trees.              avoid obstacles. However, the heavy-lift eVTOLs exhibit sig-
+Safe navigation is challenged.                                               nificantly higher moments of inertia and more constrained
+   Before path planning, scenario is described. Obstacles                    actuation capabilities, which bring great challenge to the
+in low-altitude environments are varied in shape and size.                   planned path execution. Especially in complex urban low-
+They are modeled as cylinders with diverse dimensions.                       altitude environments, path planning for heavy-lift eVTOLs
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+828                                                       IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+                                                                             incorporates several key elements, each playing a distinct role
+                                                                             in the optimization of the flight policy.
+                                                                                1) State s: st ∈ S consists of the state of the aircraft and
+                                                                             the environment information, including target position, eVTOL
+                                                                             state, and surrounding environment occupation information.
+                                                                             It can be written as
+                                                                                         st = stO , stTar = dt1 , dt2 , . . . , dtn , stTar
+                                                                                                                                           
+                                                                                                                                              (9)
+Fig. 4.   Diagram of an unsafe and infeasible path.
+                                                                             where dt1 , dt2 , . . . , dtn are the distance to the nearest obstacle
+                                                                             along each direction. n represents the number of equal divi-
+must explicitly account for inherent actuator saturation limits.             sions of the observation range [−ψobs , ψobs ]. stTar is the target
+A typical unsafe and infeasible case is given in Fig. 4.                     position, including the distance to the target and the relative
+   In Fig. 4, according to the path planning method, an ideal                heading angle between the UAV’s velocity direction and the
+path is given without intersection with the obstacles in the                 target. Considering limited detection range dmax of the armed
+environment. The ideal path generated by the planning method                 sensors, dt1 , dt2 , . . . , dtn ≤ dmax .
+enables the aircraft to avoid obstacles smoothly. When the                      2) Action a: at ∈ A is defined as moving position command
+attitude adjustment capability of the aircraft is not fully                  and yaw angle command of eVTOL, which is represented as
+considered, it may follow a trajectory that results in a collision           at = [xt , yt , ψt ].
+with an obstacle. Thus, along the planned path, xk ∈ X̄k of                     Action space A varies with the changing motion state of
+the objective function can be written as                                     the aircraft, which can be written as At . To determine At ,
+                       (                                                     the principle of action sampling is illustrated first. Stepwise
+                          p ∈ Ocol−free                                      actions of the planning process are computationally expensive
+                                                               (8)           in a high-dimensional urban environment. Thus, the actions
+                         |2| ≤ |2n |
+                                                                             are designed as circular arc segments. Assumed that the
+where 2n is attitude adjustment domain of the aircraft, which                flight velocity v is a constant. The boundary points of the
+is influenced by the flight control performance and limited                  circular arc segment are ℓt and ℓnext . ℓt = [xt , yt , ψt ]. ℓnext =
+ability of the actuation unit. And 2 is coupled with p. The                  [xnext , ynext , ψnext ], includes next position and orientation of the
+objective of the path planning method is to find a safe and                  aircraft. The circular arc segment is regard to yaw rate ωt and
+feasible path by satisfying above constraints.                               flight action time 1t. Given that ψnext = ψt + ωt · 1t, ℓnext is
+                                                                             defined as
+  III. DRL P LANNING M ETHOD C ONSIDERING M OTION                                        
+                                                                                            xt          v1t cos ψt
+                                                                                                                     
+  ATTITUDE C ONSTRAINTS FOR THE H EAVY-L IFT eVTOL                                     
+                                                                                          yt  +  v1t sin ψt ,                       if ωt < ε
+                                                                                       
+                                                                                                                 
+                                                                                       
+                                                                                       
+   In this section, the path planning problem is modeled as a
+                                                                                       
+                                                                                        ψ
+                                                                                       
+                                                                                                               0
+                                                                                                t
+DRL task. A deep Q-network (DQN) planning method con-                        ℓnext =   
+                                                                                                        v/ωt [sin(ωt −ψt )+sin ψt ]
+                                                                                                                                    
+sidering motion attitude constraints is adopted given in Fig. 5.
+                                                                                       
+                                                                                       
+                                                                                            x t
+                                                                                          yt  + v/ωt [cos(ωt −ψt )−cos ψt ], if ωt ≥ ε
+                                                                                                                                
+The aircraft interacts with the obstacle environment through
+                                                                                       
+                                                                                       
+                                                                                       
+                                                                                            ψt                     ωt · 1t
+                                                                                       
+sequences of states, actions, and rewards. The Q-network
+                                                                                       
+evaluates actions based on the current state. Parameters are                                                                                      (10)
+trained offline using replay memory. Action modification is
+conducted during sampling and execution to meet motion                       where ε is a boundary factor. 1t and ωt are the time step
+constraints. The learning loop and planning loop are jointly                 and yaw rate, respectively. The time step 1t is limited by the
+integrated. The policy is learned by maximizing cumulative                   detection range of the armed sensors dmax , which is given as
+rewards. Environmental feedback and aircraft state transitions                                            
+                                                                                                              dmax
+                                                                                                                   
+are embedded in the reinforcement learning framework for                                           1t ∈ 0,          .                  (11)
+                                                                                                               v
+safe navigation.
+                                                                                3) Policy π: π = (s1 , ℓ1 , s2 , ℓ2 , . . .) is yielded by the
+                                                                             sequence of the state and the action in each time step.
+A. DRL Planning for the Heavy-Lift eVTOL                                        According to the current state, the action ℓt ∈ A at time
+   The DRL planning method is designed to obtain the optimal                 step t can obtained by
+policy by maximizing cumulative rewards. The path planning                                                argmax
+task is formulated as a Markov decision process (MDP), where                                       ℓt =       ℓ Q(φ(st ), ℓ; θ)                   (12)
+the UAV interacts with the environment via state transitions,                where φ(st ) is the state feature mapping function. The
+action selections, and reward feedback. Due to obstacle char-                Q(s, ℓ; θt ) is trained in the learning loop. By drawing samples
+acteristics and limited vertical maneuverability, planning is                randomly from the replay memory, the Q-network parameters
+confined to the x y plane. The environment maps E are updated                θt are updated at time step t using the following loss function
+by the airborne sensors in real time. And the start position is              L t (θt ), which can be written as follows:
+p S . The target position is pT . To enable effective learning and
+                                                                               L t (θt ) = E(s,ℓ,r,s ′ ) r + γ max
+                                                                                                               ℓ′ Q s , ℓ ; θ t
+                                                                                                                     ′ ′       −
+                                                                                                                                   − Q(s, ℓ; θt ) (13)
+                                                                                                                                               
+decision-making under motion constraints, the DQN algorithm
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                     829
+
+
+
+
+Fig. 5.   Diagram of the proposed method.
+
+
+
+where γ is the discount factor, and θt is the parameters of the
+Q-network at time step t. θt− is the network parameters of the
+target Q-network at time step t. s ′ is the state at next step.
+   4) Reward r : The reward function evaluates the quality of
+actions to generate safe and efficient trajectories. r is action
+feedback from the interaction with the environment, including
+terminal reward rt , crash penalty rc , path exploration reward re ,
+and path smoothness reward rs . At each time step t, the agent
+transitions from state st to st+1 and receives a scalar reward
+rt according to
+                                                                            Fig. 6.   Network structure for Q(s, a; θt ).
+                   (sterminal , rc , True),
+                                             ifcollision
+    (st+1 , rt ) = (sterminal , rt , True),   ifreached       (14)
+                    (st+1 , re + rs , False), otherwise                      where ωt is the current yaw rate. ωt−1 is the yaw rate at the
+                  
+                  
+                                                                             previous step. And ωmax is the maximum allowable value.
+where the four constituent rewards are defined as follows.
+                                                                                5) Replay Memory: To improve learning stability, the
+Terminal reward rt is a positive reward, which is given when
+                                                                             aircraft stores its interaction experiences (st , ℓt , rt , st+1 ) in
+the UAV reaches a position within a predefined distance
+                                                                             a replay buffer with capacity l. This memory allows the
+threshold from the target, encouraging successful task com-
+                                                                             algorithm to break temporal correlations by randomly sam-
+pletion. Crash penalty rc is a fixed negative reward, which
+                                                                             pling mini-batches of past experiences for training, thus
+is assigned when the UAV collides with any obstacle to
+                                                                             enhancing generalization and convergence.
+discourage unsafe behavior.
+   To encourage meaningful progression toward the target and                    6) Q-Network: Q-network is the function to evaluate
+promote action diversity, the path exploration reward is defined             actions for the current state st . The network structure for
+as follows:                                                                  Q(s, a; θt ) is shown in Fig. 6. The architecture of Q-network
+                                                                             is designed to effectively process the obstacle information and
+                       1t                Tar
+                                             − stTar
+                                                     
+             re = 0.1        + 0.2sgn st−1                  (15)             learn from high-dimensional state spaces.
+                      1tmax
+                                                                                7) Target Q-Network: Target Q-network is an auxiliary
+where 1t is the duration of the current action lt . 1tmax is the             network that periodically receives updated weights from the
+maximum time-step. stTar is the Euclidean distance to the target             primary Q-network and provides a consistent target for train-
+at time t.                                                                   ing, which helps to stabilize the learning process by reducing
+   To penalize sudden changes in heading direction and ensure                the variance in the target values. Target Q-network has the
+smoother flight, path smoothness reward is defined as follows:               same structure as the Q-network, which uses parameter θt− .
+                                |ωt − ωt−1 |                                 These components enable the UAV to learn an effective
+                    rs = −0.05                              (16)
+                                    ωmax                                     and safe navigation policy. Using the trained Q-network, the
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+830                                                           IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+transition model FIPM of the proposed method is used to obtain                 2 = [ 2h ψ ]T . Assumed that W ≈ I 3 due to the small-
+new state at next time step t + 1, which is defined as follows:                angle assumption
+                    st+1 = FIPM (st , ℓt , f (at ))
+                                                                                                               
+                                                                       (17)                            cψ −sψ
+                                                                                                Aψ =              .              (23)
+                                                                                                       sψ    cψ
+where f (at ) is the action execution prediction function, which
+is used to consider the motion attitude constraints of the heavy-                 According to (22), 2h and τ b are obtained. The propeller
+lift eVTOL. Through above process, the optimal policy, which                   rotation speed range limits Fb and τb . From the demand of
+is the planned path, can be obtained.                                          attitude adjustment, the rotation speed adjustment range of the
+                                                                               driving motor is 1n id x . For yaw control, clockwise rotor speed
+B. Action Modification Considering Motion Attitude                             is increased, and counterclockwise rotor speed is decreased.
+Constraints                                                                    And the control allocation can map from the Fb and τb to the
+                                                                               desired rotation speeds of each propeller unit, which is given
+   To account for attitude adjustment capabilities, a DFCM                     as
+is developed and involved into the DRL planning method.                                            2 
+                                                                                                     n1
+                                                                                                                           
+According to action sampling principle, ωt and 1t are donated                                                           F
+to determine At , which must satisfy safety and feasible con-                                      2  = P −1  M X 
+                                                                                                   n2                    
+                                                                                                                                            (24)
+                                                                                                   ...         4∗16  MY 
+straint in (8). To satisfy feasible constraint, the motion attitude
+constraint 2n is obtained using the DFCM, which reflects                                             n 216              MZ
+flight control performance.
+                                                                               where P4∗16 is mix-control matrix related to the airframe con-
+   The aircraft consists of octo-rotor and 16 coaxial lifting
+                                                                               figuration and the motor efficiency model. And the definition
+propellers. For each propeller id x, the speed n id x is given,
+                                                                               u 2 = [n 21 , n 22 , . . . , n 216 ]
+id x = 1, 2, . . . , 16. The lifting force and moment of each
+                                                                                                                      √ 2
+propeller unit can be written as follows:                                                                           u= u                 (25)
+                   Fid x = cl ρ D 4 n id
+                                      2
+                                         x                             (18)    where u is the predicted control input. And the flight control
+                   Mid x = (−1)    id x+1
+                                            ct ρ D 4 n id
+                                                       2
+                                                          x            (19)    performance can be modeled as f m which can be written as
+where cl and ct are the force and moment coefficients, respec-                                             u ≈ f m (ℓ).                          (26)
+tively. ρ is the air resistance coefficient. Did x is the diameter
+of the rotor id x. The total lifting force Fb and total moment                    Meanwhile, dealing with the intricacies inherent in dynamic
+τb can be obtained. Then, using the Newton–Euler equation,                     control processes, high-precision forecasts is involved in the
+the dynamics of motion of the octo-rotor 16 coaxial lifting                    DFCM. It is established from the real flight data. The flight
+propellers eVTOL can be described as                                           data are collected on the outdoor flight without wall or ground
+               (                                                               effects, including attitude command, throttle command, actual
+                 m v̇b + ωb × vb = Fb
+                                  
+                                                                               rotation speeds of each propeller unit, and so on.
+                                                              (20)
+                 Jω̇b + ωb × (Jωb ) + G a = τ b                                   The desired attitude 2 is obtained from ℓ = [x, y, ψ]
+                                                                               through (22). Then, the flight controller performance can be
+where vb is velocity. v̇b is acceleration. ωb is angular velocity.             fit from the desired attitude 2 to the attitude throttle control
+ω̇b is angular acceleration. J is the matrix of inertia. G a is                command σ2 , is defined as
+the gyroscopic moment. The kinematics of the aircraft can be
+described as                                                                                              σ2 = fit(2).                           (27)
+                         (
+                            ṗ = vb                                               A two-layer feed-forward network N N is used to fit and
+                                                             (21)              predict the rotation speeds of each propeller from σ2 . And
+                            2̇ = Wωb
+                                                                               the aircraft data-based model f N N for path planning can be
+where 2̇ is the body angular velocity. W is the conversion                     established as follows:
+matrix between the attitude velocity to body angular velocity.
+   Considering attitude adjustment, the DFCM is built based on                                            u ≈ f N N (ℓ)                          (28)
+flight control performance, including path following (position,                where ω is the weights vector in the network. Equation (26)
+attitude, and allocation) and low-level motor control. Giving                  shows the dynamic characteristic of the aircraft with exact law.
+planning command ℓ = [x, y, ψ], position and attitude calcu-                   Equation (28) shows high-precision forecasts to deal with the
+lation can be expressed as                                                     intricacies inherent in dynamic control processes. The DFCM
+                     
+                       p˙h = vh                                               transforms desired planning command at time step t to the
+                     
+                                                                               desired rotation speeds of each propeller unit, which can be
+                      2 = − 1 A−1 v˙
+                     
+                     
+                     
+                           h
+                                 g ψ
+                                       h
+                                                           (22)                written as
+                       ωb = W 2̇ −1
+                                                                                             f (ℓt ) = ω1 · f m (ℓt ) + ω2 · f N N (ℓt )
+                     
+                     
+                     
+                                                                                                                                                (29)
+                      τ = Jω˙
+                     
+                           b        b
+                                                                               where ω1 and ω2 are the weight factors of models, respectively.
+where ph = [ x y ]T , g is the gravitational acceleration, and                 ω1 = rm /(rm + r N N ). ω2 = r N N /(rm + r N N ). A linear
+2h = [ ϕ θ ]T . And 2 can also be defined in terms of                          formulation is employed to adjust the weights, where rm and
+
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                       831
+
+
+Algorithm 1 DRL Planning Method With DFCM
+Initialize E, p S , pT , l, u, ℓ, random θ, θ − = 0
+For each episode do
+   For each step do
+      Observe state st and u t
+      Solve attitude adjustment range 2tn = f −1 (u t ) through
+DFCM
+                            argmax
+      Select action ℓt =         ℓ Q(φ(st ), ℓ; θ) in the 2n
+                                                            t
+
+      Execute action at and predict control input u t+1
+      Observe reward r t and update st+1
+      Execution predict and obtain attitude adjustment                      Fig. 7. Configuration of the heavy-lift eVTOL and the data collection process.
+range 2n
+      Store transition (st , at , rt , st ) in replay memory D
+      Sample random minibatch of transition from D
+      if episode terminates at time step j then
+         break
+      else
+         Compute the loss function and update the θ
+      Every C steps reset Target Q-network as Q-network
+   End for
+End for
+
+
+r N N represent the reliability metrics of the respective models.
+The execution prediction module is used to predict the rotation             Fig. 8.   Regression plot of different methods.
+speeds of each propeller units, which is written as
+                           u t+1 = f (ℓt ).                         (30)    implemented on the heavy-lift eVTOL to further validate the
+                                                                            effectiveness of the proposed approach.
+  To obtain attitude adjustment domain 2n , feasible action
+space is obtained according to the rotation speeds of each
+propeller unit u t . The remaining adjustment range of u t is               A. Data Collection and Model Evaluation
+written as Ut . Then, according to the rotation speed adjustment               To train the model and obtain the dynamic characteristic,
+range of the driving motor, the attitude adjustment range is                real flight data are collected using the heavy-lift eVTOL. The
+obtained through the (30)                                                   configuration of the heavy-lift eVTOL and the data collection
+                                                                            process is shown in Fig. 7.
+                    2tn = f −1 (u t ),   u t ∈ Ut .                 (31)       The data include attitude angle commands, throttle com-
+   Based on the 2n , the action space is limited in the feasible            mands, motion states, and actual propeller rotation speeds.
+attitude domain satisfying the feasible constraint in (8). For the          Commands are calculated and recorded by the onboard indus-
+heavy-lift eVTOL, the path planning should find a safe and                  trial computer. Motion states are measured by platform sensors
+feasible path by satisfy constraints in (8) and (31). To this end,          and transmitted to the flight controller. Rotation speeds are
+the action modification is achieved based on the established                sent from motor controllers. All flight data is integrated
+DFCM. Besides, the Q-network responsible for action eval-                   and transmitted at 20 Hz within the flight controller. Upon
+uation is trained in the learning loop based on the random                  receiving the data, the industrial computer executes planning
+samples in replay memory. Based on the aforementioned                       and control algorithms for autonomous operation.
+description, the detailed procedure of the proposed method                     The training data are processed offline and about 5000 sam-
+is presented in Algorithm 1.                                                ples. To learning from the flight data effectively, the training
+                                                                            dataset is set to 70%. It is divided into training (70%),
+                                                                            validation (15%), and testing (15%) subsets. The correlation
+                IV. R ESULTS AND D ISCUSSION                                coefficient is set as the performance metric of the model,
+  In this section, validations are carried out to test the                  which is tested and illustrated in Fig. 8. A purely physics-based
+performance. First, real flight data collection and DFCM                    model derived from first-principles formulations is used as a
+model evaluation are introduced. Second, the simulation and                 comparison method. Quantitatively, the physics-based model
+experimental results are carried out. In comparison with                    attains a correlation coefficient of 0.8807, whereas DFCM
+widely used path planning methods, including A∗ , Deep                      achieves a substantially higher coefficient of 0.9723. This
+Deterministic Policy Gradient (DDPG), Soft Actor–Critic                     marked improvement demonstrates that integrating empirical
+(SAC), and other DRL-based approaches, the proposed                         data through DFCM yields predictions that align far more
+method demonstrates superior path feasibility across various                closely with true motor-speed behavior than the classical,
+urban map scenarios. Finally, real-world experiment is                      formula-driven model.
+
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+832                                                       IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+
+                                                                             Fig. 11. Ablation study results for reward design. (1) rc + rt . (2) rc + rt +
+                                                                             re . (3) rc + rt + re + rs .
+Fig. 9.   Convergence analysis of DFCM across epochs.
+
+                                                                             function, the ablation study results for reward design across
+                                                                             400 randomized scenarios are given as follows.
+                                                                                To validate the effectiveness and sensitivity of the reward-
+                                                                             term design, an ablation study is proposed across 400 ran-
+                                                                             domly generated urban scenarios using five different reward
+                                                                             configurations: 1) basic reward consisting of crash penalty
+                                                                             and terminal reward rc + rt ; 2) an extended reward incorpo-
+                                                                             rating path exploration rc + rt + re ; 3) a further enhanced
+                                                                             reward including path smoothness rc + rt + re + rs ;
+                                                                             4) safety-dominant setting with higher weighting on rc ; and
+                                                                             5) efficient-dominant setting with higher weighting on re .
+                                                                                As illustrated in Fig. 11, the success rate rises sharply from
+                                                                             about 60% with the basic reward rc + rt to 97%, when
+                                                                             path exploration re is added, and further increases to 98.5%
+                                                                             with the inclusion of path smoothness rs . The safety-dominant
+                                                                             configuration, with higher weighting on rc , maintains a success
+                                                                             rate close to 98.7%, while the efficiency-dominant configura-
+                                                                             tion still achieves above 94%. In parallel, the average path
+Fig. 10. Convergence curves of the proposed method. (a) Training reward
+versus episodes. (b) Success rate versus episodes.
+                                                                             length decreases from 1500 m under the basic reward to
+                                                                             around 930 m with exploration, and stabilizes near 920 m
+                                                                             with smoothness. The safety-dominant variant yields a slightly
+                                                                             longer path of 988 m, whereas the efficiency-dominant variant
+   The evaluation of the proposed method across 100 randomly
+                                                                             achieves the shortest paths of about 861 m.
+generated urban environments is carried out. The hypothesis
+                                                                                These results highlight clear improvements in both safety
+test, which is one-sample t-test, returned hypothesis test result
+                                                                             and efficiency, confirming that the proposed reward design
+indicator h = 0 and p-value p = 0.9943, indicating that
+                                                                             effectively balances the two objectives, with the balanced
+these results under the current test setup show no statistically
+                                                                             configuration rc + rt + re + rs offering the favorable trade-off.
+significant difference between the simulation results under
+assumptions and the validation results.
+   As illustrated in Fig. 9, the proposed DFCM model for                     B. Results and Analysis
+path planning exhibits good convergence, which is quan-                         To verify the validity of the proposed path planning method
+titatively evaluated by the mean squared error (mse) over                    for the heavy-lift eVTOL, extensive simulations are conducted
+training epochs. The curve exhibits a sharp initial decline                  on a hardware platform equipped with 16-GB RAM and
+in MSE, indicating rapid learning during the early training                  an AMD Ryzen 7 5800H CPU (3.20 GHz) with integrated
+phase. The error stabilizes, indicating model convergence. The               Radeon Graphics. The parameters of the DRL planning
+DQN-based planning method is proved convergent, as shown                     method considering motion attitude constraints are shown in
+in Fig. 9.                                                                   Table II. The parameter values listed are carefully chosen to
+   To further validate the reliability of the proposed method,               balance exploration and exploitation, ensure efficient learning,
+five independent training runs with 100 episodes each were                   and promote stable convergence in the proposed method.
+conducted under identical settings. The results in Fig. 10                   During training, the parameters of Q-network are updated
+show that the training reward rapidly increases during the                   every five actions using a batch of 64 randomly selected
+initial episodes and then stabilizes at a high level with nar-               samples from the replay memory. The parameters of the
+row variance across runs. Similarly, the success rate quickly                target network are updated every five times the evaluation
+converges to above 98% and remains stable thereafter. These                  parameters of Q-network are updated. The replay memory has
+results demonstrate that the proposed DRL–DFCM framework                     a capacity of 500 samples. The agent uses an ε-greedy policy
+achieves efficient and consistent convergence over multiple                  for exploration, with an exploration rate of 0.1 and a discount
+runs. And to validate the effectiveness of our current reward                factor of 0.9.
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                      833
+
+
+
+                               TABLE II
+            PARAMETERS OF THE DRL P ROCESS S ETTING
+
+
+
+
+   The proposed method is validated in the PyCharm envi-
+ronment using random urban maps sized 700 × 700 m with
+a height of 20 m. In each simulation episode, the start and
+target positions are fixed at (50, 50 m) and (650, 650 m),
+respectively. Obstacles are modeled as cylinders, with environ-
+mental exploration within a 30 m radius. A total of 20 diverse
+scenarios are simulated to evaluate performance. The reward
+ranges from 17.541 to 27.008, averaging 21.890, indicating
+consistent performance. Path lengths range from 863.242 to
+1076.120 m, with an average of 927.260 m. The average
+computation time is 414 ms.
+   To further evaluate effectiveness, six methods are com-
+pared: A∗ , DDPG, SAC, DRL, DRL–PM, and the proposed                        Fig. 12.   Simulation results in 2-D and 3-D map of different methods.
+DRL–DFCM method. Three indicators are adopted as follows.
+   1) Efficiency Indicator: The path length L reflects path
+      efficiency                                                               Fig. 12 illustrates the 2-D and 3-D planned trajectories
+                                N
+                                X −1                                        in a cluttered environment using six methods. In 2-D, the
+                           L=           pi+1 − pi                   (32)    DRL–DFCM method produces a near-optimal path that effec-
+                                 i=1                                        tively avoids obstacles with minimal deviation, demonstrating
+     where pi is the position at step i. N is the total steps               strong spatial adaptability. In 3-D, it maintains a collision-free
+     of a flight path. The smaller value usually means lower                trajectory between cylindrical obstacles, highlighting dynamic
+     fuel consumption and time cost.                                        feasibility. In contrast, standard DRL and DDPG methods
+  2) Safety Indicator: The minimum distance Dmin between                    yield longer or less efficient paths with unnecessary detours.
+     the heavy-lift eVTOL and obstacle buildings reflects                   The A∗ method generates a shorter but unsmoothed path,
+     path safety                                                            which lacks consideration of dynamics, reducing its suitability
+                                                                            for heavy-lift eVTOL applications. The SAC method, while
+                 Dmin = min min              pi −   j   −   j,r     (33)    capable of generating feasible routes, exhibits longer paths and
+                          i∈[1,N ] j∈[1,n]
+                                                                            reduced efficiency, and its trajectories often approach obstacles
+     where o j is the obstacle j center. j,r is its envelope                more closed, which compromises safety margins.
+     radius. A negative value indicates collision risk.                        Efficiency indicators and safety indicators further validate
+  3) Feasibility Indicator: Feasibility is assessed by the yaw              this performance. The proposed method attains a shorter
+     rate violation rate                                                    path length (909.28 m) than SAC (944.00 m), DDPG
+                                    N
+                               1 X                                          (944.00 m), and other DRL baselines (DRL 951.23 m; DRL–
+                     2fea =          δ ψ̇ i > ψ̇ max
+                                                     
+                                                                    (34)    PM 953.15 m), indicating better planning efficiency without
+                               N i=1
+                                                                            resorting to geometry-only shortcuts. The minimum obstacle
+      where ψ̇ i is the yaw rate at step i. ψ̇ max is calculated            distance along our trajectory (8.88 m) exceeds SAC (5.62 m)
+      through (31) determined from the DFCM. δ is the                       and DDPG (3.75 m), and is vastly safer than A∗ (0.81 m),
+      indicator function, equal to 0 if the condition is true               avoiding the near-miss behavior typical of geometry-centric
+      and 1 otherwise.                                                      plans, which is shown in Fig. 13. At the same time, our planner
+  1) Comparison Among Different Methods: The aircraft                       remains dynamically feasible for heavy-lift eVTOL operations.
+plans paths within the limited detection range using the                    By embedding actuator and attitude constraints into the plan-
+DRL method, DRL–PM method, DRL–DFCM method, DDPG                            ning process, DRL–DFCM consistently achieves a stronger
+method, and SAC method, respectively. The aircraft using the                balance of efficiency, safety, and dynamic feasibility than SAC
+A∗ method plans the path with the known map. The trajectories               and other baselines, underscoring its superior suitability for
+generated are illustrated in Fig. 12.                                       urban heavy-lift eVTOLs.
+
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+834                                                      IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+
+Fig. 13.     Safety indicators of different methods. (a) DRL method.
+(b) DRL–PM method. (c) DRL–DFCM method. (d) A∗ method. (e) DDPG
+method. (f) SAC method.
+
+
+
+
+                                                                            Fig. 15.   Simulation results in 2-D and 3-D maps in a different scenario.
+
+
+
+
+                                                                            compliance, enabling safe, efficient, and executable flight paths
+                                                                            under realistic conditions.
+                                                                               2) Comparison Among Different Scenarios: To highlight
+                                                                            the effectiveness of the proposed method, simulation results
+                                                                            comparing the DRL, DRL–PM, and DRL–DFCM methods are
+                                                                            presented in Fig. 15. In this complex urban environment, the
+                                                                            heavy-lift eVTOL must navigate a narrow corridor between
+                                                                            buildings, posing significant obstacle avoidance challenges.
+                                                                               The path efficiency indicators are 930.00 m (DRL),
+Fig. 14.  Feasibility indicator of different methods. (a) DRL method.
+(b) DRL–PM method. (c) DRL–DFCM method.                                     938.43 m (DRL–PM), and 913.83 m (DRL–DFCM), indi-
+                                                                            cating the shortest path is achieved by the proposed method.
+                                                                            All methods maintain basic obstacle avoidance; however, the
+   The feasibility indicators of three methods are given in                 safety indicators in Fig. 16 are 6.75, 6.71, and 10.77 m,
+Fig. 14, which presents feasibility indicators by analyzing yaw             respectively. The DRL–DFCM method consistently maintains
+rate constraints. The shaded area indicates real-time attitude              a greater distance from obstacles, especially in critical regions
+adjustment bounds. The DRL method maintains near-zero yaw                   such as (430, 500, and 20 m). Path generalization is enhanced
+rates with minimal adjustment, offering limited flexibility.                by the arc-segment sampling strategy of the DRL–DFCM
+The DRL–PM method shows frequent violations of yaw                          method, allowing efficient exploration within a 30 m radius
+constraints, indicating instability. In contrast, the DRL–DFCM              and enabling the aircraft to adapt to complex environments.
+method maintains yaw rates within allowable limits, reflecting                 The feasibility indicators of three methods are given in
+its real-time adaptability and control responsiveness. Overall,             Fig. 17. The DRL method remains within conservative bounds
+the proposed DRL–DFCM method demonstrates a high atti-                      but lacks adaptability to varying motion states. The DRL–PM
+tude feasibility rate 2fea of 89.25%, surpassing the DRL–PM                 method responds to dynamic changes but occasionally exceeds
+method (84.13%). This indicates the effectiveness of incor-                 constraints due to prediction limitations. In contrast, the
+porating the DFCM into the DRL framework. It ensures                        DRL–DFCM method maintains the yaw rate within accept-
+a better balance between dynamic feasibility and constraint                 able bounds throughout, meeting real-time attitude constraints.
+
+Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                     835
+
+
+
+                                                                                                              TABLE III
+                                                                                          PARAMETERS OF THE A IRCRAFT C ONFIGURATION
+
+
+
+
+Fig. 16. Safety indicator of different methods. (a) DRL method. (b) DRL–PM
+method. (c) DRL–DFCM method.
+
+
+
+
+Fig. 17. Feasibility indicator of different methods in a different scenario.
+(a) DRL method. (b) DRL–PM method. (c) DRL–DFCM method.
+
+
+
+The evaluation results show that the proposed DRL–DFCM
+method achieves a high attitude feasibility rate 2fea of
+87.63%, significantly higher than that of the DRL–PM method
+(79.10%). These results confirm that integrating dynamic atti-
+tude constraints enhances the generation of safe, executable,
+and physically feasible flight paths in realistic urban scenarios.
+   3) Experimental Flight Test: To validate the effectiveness
+of the proposed method, a real-world flight experiment was                     Fig. 18.   Planning results in experimental flight test. (a) Experimental
+conducted. The flight experiments were conducted under nat-                    environment. (b) Planning results.
+ural ambient conditions, with estimated wind speeds ranging
+from 0.3 to 3.3 m/s. The relevant experimental parameters are
+detailed in Table III.                                                         with the onboard flight controller to transmit the planned
+   The flight trajectory was confined to an area measuring                     trajectory in real time.
+30 × 10 m due to the spatial limitations of the experimental                      The planning results illustrated in Fig. 19 in experimental
+environment. The start position and target position are settled                flight test are represented by a red curve. The total length of
+down at (0, 0 m) and (30, 0 m), respectively. The experimental                 the trajectory is measured as 31.967 m. The minimum distance
+environment is shown in Fig. 18, where a tree obstacle is                      maintains between the executed trajectory and all obstacles
+placed at (7.5, 0.63 m). The proposed path planning algorithm                  is recorded as 1.41 m. A smooth and collision-free path
+was deployed on the industrial computer, which communicates                    is successfully maintained throughout the entire experiment,
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+836                                                             IEEE TRANSACTIONS ON TRANSPORTATION ELECTRIFICATION, VOL. 12, NO. 1, FEBRUARY 2026
+
+
+
+                                                                                      [9] L. M. S. Bine, A. R. Svaigen, A. Boukerche, L. B. Ruiz, and
+                                                                                          A. A. F. Loureiro, “Flavors of the next generation of unmanned
+                                                                                          aerial vehicles networks,” IEEE Internet Things J., vol. 11, no. 14,
+                                                                                          pp. 24604–24620, Jul. 2024.
+                                                                                     [10] S. Liu, K. Mohta, N. Atanasov, and V. Kumar, “Search-based motion
+                                                                                          planning for aggressive flight in SE(3),” IEEE Robot. Autom. Lett., vol. 3,
+                                                                                          no. 3, pp. 2439–2446, Jul. 2018.
+                                                                                     [11] K.-W. Chen, M.-R. Xie, Y.-M. Chen, T.-T. Chu, and Y.-B. Lin,
+                                                                                          “DroneTalk: An Internet-of-Things-based drone system for last-mile
+                                                                                          drone delivery,” IEEE Trans. Intell. Transp. Syst., vol. 23, no. 9,
+                                                                                          pp. 15204–15217, Sep. 2022.
+Fig. 19.   Actual attitude response in experimental flight test.                     [12] W. Chi, C. Wang, J. Wang, and M. Q.-H. Meng, “Risk-DTRRT-based
+                                                                                          optimal motion planning algorithm for mobile robots,” IEEE Trans.
+                                                                                          Autom. Sci. Eng., vol. 16, no. 3, pp. 1271–1288, Jul. 2019.
+                                                                                     [13] D. Celestini, S. Primatesta, and E. Capello, “Trajectory planning
+which demonstrates the ability of the method to generate safe                             for UAVs based on interfered fluid dynamical system and Bézier
+and executable trajectories.                                                              curves,” IEEE Robot. Autom. Lett., vol. 7, no. 4, pp. 9620–9626,
+                                                                                          Oct. 2022.
+   As shown in Fig. 19, all attitude angles remain within small                      [14] Z. Pan, C. Zhang, Y. Xia, H. Xiong, and X. Shao, “An improved artificial
+bounded ranges without divergence, and the angular rates                                  potential field method for path planning and formation control of the
+fluctuate around zero in a stable manner.                                                 multi-UAV systems,” IEEE Trans. Circuits Syst. II, Exp. Briefs, vol. 69,
+                                                                                          no. 3, pp. 1129–1133, Mar. 2022.
+                                                                                     [15] H. Liu, G. Wu, L. Zhou, W. Pedrycz, and P. N. Suganthan, “Tangent-
+                             V. C ONCLUSION                                               based path planning for UAV in a 3-D low altitude urban environment,”
+                                                                                          IEEE Trans. Intell. Transp. Syst., vol. 24, no. 11, pp. 12062–12077,
+   This article proposes a DRL-based path planning method                                 Nov. 2023.
+that incorporates motion attitude constraints for heavy-lift                         [16] S. Xie, J. Hu, P. Bhowmick, Z. Ding, and F. Arvin, “Distributed
+eVTOLs in urban environments. The planning problem is                                     motion planning for safe autonomous vehicle overtaking via artificial
+                                                                                          potential field,” IEEE Trans. Intell. Transp. Syst., vol. 23, no. 11,
+formulated, and a DFCM is built using real flight data to                                 pp. 21531–21547, Nov. 2022.
+reflect flight control performance. The DFCM guides the                              [17] X. Ni, W. Hu, Q. Fan, Y. Cui, and C. Qi, “A Q-learning based
+DRL algorithm to plan safe and feasible trajectories within                               multi-strategy integrated artificial bee colony algorithm with application
+the attitude constraint domain. Model validation achieves                                 in unmanned vehicle path planning,” Expert Syst. Appl., vol. 236,
+                                                                                          Feb. 2024, Art. no. 121303.
+a correlation coefficient of 0.9723. Simulation results                              [18] G. Du, Y. Zou, X. Zhang, Z. Li, and Q. Liu, “Hierarchical motion
+demonstrate superior safety and feasibility compared to A∗ ,                              planning and tracking for autonomous vehicles using global heuristic
+DDPG, and other DRL methods. The current simulation                                       based potential field and reinforcement learning based predictive con-
+                                                                                          trol,” IEEE Trans. Intell. Transp. Syst., vol. 24, no. 8, pp. 8304–8323,
+assumes static obstacles and ideal sensors. Future research                               Aug. 2023.
+will address dynamic environments, sensor noise, actuator                            [19] X. Dong, H. Li, Y. Cui, J. Xiang, D. Li, and Z. Tu, “Aerial landing
+degradation, and real-time perception errors. A co-design                                 of micro UAVs on moving platforms considering aerodynamic inter-
+framework will also be developed to jointly optimize the                                  ference,” IEEE Robot. Autom. Lett., vol. 9, no. 11, pp. 10089–10096,
+                                                                                          Nov. 2024.
+high-level path planner and low-level attitude controller for                        [20] M. Xi et al., “A lightweight reinforcement-learning-based real-time path-
+improved real-world applicability.                                                        planning method for unmanned aerial vehicles,” IEEE Internet Things
+                                                                                          J., vol. 11, no. 12, pp. 21061–21071, Jun. 2024.
+                                                                                     [21] Y. Yin, Z. Wang, L. Zheng, Q. Su, and Y. Guo, “Autonomous UAV
+                               R EFERENCES                                                navigation with adaptive control based on deep reinforcement learning,”
+ [1] Y. Safadi, R. Fu, Q. Quan, and J. Haddad, “Macroscopic fundamental                   Electronics, vol. 13, no. 13, p. 2432, Jun. 2024.
+     diagrams for low-altitude air city transport,” Transp. Res. C, Emerg.           [22] A. Singla, S. Padakandla, and S. Bhatnagar, “Memory-based deep
+     Technol., vol. 152, Jul. 2023, Art. no. 104141.                                      reinforcement learning for obstacle avoidance in UAV with limited
+ [2] J. Zhao et al., “A game-learning-based smooth path planning strategy                 environment knowledge,” IEEE Trans. Intell. Transp. Syst., vol. 22,
+     for intelligent air–ground vehicle considering mode switching,” IEEE                 no. 1, pp. 107–118, Jan. 2021.
+     Trans. Transport. Electrific., vol. 8, no. 3, pp. 3349–3366, Sep. 2022.         [23] Z. Li, J. Hu, B. Leng, L. Xiong, and Z. Fu, “An integrated of decision
+ [3] H. Huang, A. V. Savkin, and C. Huang, “Round trip routing for energy-                making and motion planning framework for enhanced oscillation-
+     efficient drone delivery based on a public transportation network,” IEEE             free capability,” IEEE Trans. Intell. Transp. Syst., vol. 25, no. 6,
+     Trans. Transport. Electrific., vol. 6, no. 3, pp. 1368–1376, Sep. 2020.              pp. 5718–5732, Jun. 2024.
+ [4] A. Li, M. Hansen, and B. Zou, “Traffic management and resource                  [24] Y. Wang, H. Wang, Y. Liu, J. Wu, and Y. Lun, “6-DOF UAV path plan-
+     allocation for UAV-based parcel delivery in low-altitude urban space,”               ning and tracking control for obstacle avoidance: A deep learning-based
+     Transp. Res. C, Emerg. Technol., vol. 143, Oct. 2022, Art. no. 103808.               integrated approach,” in Proc. Aerosp. Sci. Technol., vol. 151, 2024,
+ [5] Z. Chen, Z. Hu, Z. Bao, and W. Xu, “UAV charging station planning                    Art. no. 109320.
+     and route optimization considering stochastic delivery demand,” IEEE            [25] T. Qie, W. Wang, C. Yang, and C. Xiang, “A heavy-duty tracked
+     Trans. Transport. Electrific., vol. 10, no. 4, pp. 9328–9341, Dec. 2024.             vehicle model with a reduced feasible domain for motion tracking
+ [6] W. Wang, X. Li, and J. Tian, “UAV formation path planning for moun-                  control considering dynamic characters of hybrid powertrain,” Adv. Eng.
+     tainous forest terrain utilizing an artificial rabbit optimizer incorporating        Informat., vol. 62, Oct. 2024, Art. no. 102760.
+     reinforcement learning and thermal conduction search strategies,” Adv.          [26] M. Sarkar et al., “A data-driven approach for performance evaluation
+     Eng. Informat., vol. 62, Oct. 2024, Art. no. 102947.                                 of autonomous eVTOLs,” IEEE Trans. Aerosp. Electron. Syst., vol. 61,
+ [7] Q. Tan, X. Zhang, H. Liu, S. Jiao, M. Zhou, and J. Li, “Mul-                         no. 2, pp. 1–17, Apr. 2025, doi: 10.1109/TAES.2024.3493853.
+     timodal dynamics analysis and control for amphibious fly-drive                  [27] S. Jamal Haddadi, P. Zarafshan, and M. Dehghani, “A coaxial quadrotor
+     vehicle,” IEEE/ASME Trans. Mechatronics, vol. 26, no. 2, pp. 621–632,                flying robot: Design, analysis and control implementation,” Aerosp. Sci.
+     Apr. 2021.                                                                           Technol., vol. 120, Jan. 2022, Art. no. 107260.
+ [8] N. Swaminathan, S. R. P. Reddy, K. RajaShekara, and K. S. Haran,                [28] H. Piao et al., “Learning smooth motion planning for intelligent
+     “Flying cars and eVTOLs—Technology advancements, powertrain archi-                   aerial transportation vehicles by stable auxiliary gradient,” IEEE
+     tectures, and design,” IEEE Trans. Transport. Electrific., vol. 8, no. 4,            Trans. Intell. Transp. Syst., vol. 23, no. 12, pp. 24464–24473,
+     pp. 4105–4117, Dec. 2022.                                                            Dec. 2022.
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+LIU et al.: DRL PATH PLANNING METHOD FOR URBAN HEAVY-LIFT eVTOL                                                                                        837
+
+
+
+[29] S. Cao, X. Wang, R. Zhang, H. Yu, and L. Shen, “From demonstration                              Weida Wang received the Ph.D. degree from
+     to flight: Realization of autonomous aerobatic maneuvers for fast,                              Beihang University, Beijing, China, in 2009.
+     miniature fixed-wing UAVs,” IEEE Robot. Autom. Lett., vol. 7, no. 2,                              He is currently a Professor and the Vice Dean
+     pp. 5771–5778, Apr. 2022.                                                                       of the School of Mechanical Engineering, Beijing
+[30] E. Kaufmann, L. Bauersfeld, A. Loquercio, M. Müller, V. Koltun, and                             Institute of Technology, Beijing. His current research
+     D. Scaramuzza, “Champion-level drone racing using deep reinforcement                            interests include electric vehicles, automated vehicle
+     learning,” Nature, vol. 620, no. 7976, pp. 982–987, Aug. 2023.                                  motion planning and control, and electromechanical
+[31] L. Bauersfeld, E. Kaufmann, P. Foehn, S. Sun, and D. Scaramuzza,                                transmission control.
+     “NeuroBEM: Hybrid aerodynamic quadrotor model,” in Proc. Robot.,
+     Sci. Syst., Jul. 2021, pp. 1–10.
+[32] Y. Ou, H. Xiong, H. Jiang, Y. Zhang, and B. R. Noack, “Dynamic
+     obstacle avoidance of fixed-wing aircraft in final phase via reinforce-
+     ment learning,” IEEE Trans. Aerosp. Electron. Syst., vol. 60, no. 4,
+     pp. 3923–3935, Aug. 2024.
+[33] Z. Zou, S. Yang, and L. Zhao, “Dual-loop control and state predic-                              Tianqi Qie (Graduate Student Member, IEEE)
+     tion analysis of QUAV trajectory tracking based on biological swarm                             received the B.S. and Ph.D. degrees from Beijing
+     intelligent optimization algorithm,” Sci. Rep., vol. 14, no. 1, p. 19091,                       Institute of Technology, Beijing, China, in 2019 and
+     Aug. 2024.                                                                                      2025, respectively.
+[34] J. Li and Y. Liu, “Deep reinforcement learning based adaptive real-time                           Her research interests include intelligent con-
+     path planning for UAV,” in Proc. 8th Int. Conf. Dependable Syst. Their                          trol theory and decision-making methods for
+     Appl. (DSA), Aug. 2021, pp. 522–530.                                                            autonomous vehicles.
+
+
+
+
+                         Wenjie Liu received the B.S. degree from Fuzhou
+                         University, Fuzhou, China, in 2018, and the M.S.                            Yincong Chen received the M.S. degree from
+                         degree from Beijing Institute of Technology, Beijing,                       Beijing Institute of Technology, Beijing, China,
+                         China, in 2022, where she is currently pursuing                             in 2023, where he is currently pursuing the Ph.D.
+                         the Ph.D. degree with the School of Mechanical                              degree with the School of Mechanical Engineering.
+                         Engineering.                                                                  His research interests include parameter optimiza-
+                           Her research interests include autonomous flight                          tion and control strategy for heavy-duty vehicles and
+                         for UAV.                                                                    eVTOLs.
+
+
+
+
+                         Chao Yang (Member, IEEE) received the Ph.D.                                 Shuanghao Yong received the B.S. degree from
+                         degree in control science and engineering from                              Northwestern Polytechnical University, Xi’an,
+                         Yanshan University, Qinhuangdao, China, in 2016.                            China, in 2020. He is currently pursuing the Ph.D.
+                           He is currently a Professor with the School                               degree with the School of Mechanical Engineering,
+                         of Mechanical Engineering, Beijing Institute of                             Beijing Institute of Technology, Beijing, China.
+                         Technology, Beijing, China. His research interests                            His research interests include perception and
+                         include advanced control theory and application on                          planning for large-scale UAV autonomous flight
+                         intelligent vehicles.                                                       systems and deep reinforcement learning.
+
+
+
+
+ Authorized licensed use limited to: BEIJING INSTITUTE OF TECHNOLOGY. Downloaded on June 24,2026 at 16:33:38 UTC from IEEE Xplore. Restrictions apply.
+

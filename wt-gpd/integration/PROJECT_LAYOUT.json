@@ -1,0 +1,50 @@
+{
+  "snapshot_name": "TD3 public source-and-evidence snapshot",
+  "repository": "https://github.com/magictierwheel/TD3",
+  "branch": "main",
+  "snapshot_root": "workspace root E:/1-AI辅助工作/科研项目/强化学习",
+  "purpose": "Keep the reviewable GitHub tree aligned with the local workspace layout without publishing large or disposable training artifacts.",
+  "tracked_top_level_directories": [
+    "gym-pybullet-drones",
+    "research_papers",
+    "wt-gpd"
+  ],
+  "public_snapshot_subtrees": [
+    "gym-pybullet-drones/<tracked source, documentation, configuration, and small evidence files>",
+    "research_papers/<tracked paper text and small reference files>",
+    "wt-gpd/integration/<current TD3 integration worktree snapshot>"
+  ],
+  "reviewable_results_root": "wt-gpd/integration/experiments/circular_tracking/results/hidden_disturbance_td3_paper",
+  "reviewable_result_content": [
+    "README.md files describing each protocol/stage and its local-only artifacts",
+    "small JSON/CSV manifests, summaries, gate decisions, and run metadata",
+    "configuration and reproducibility evidence needed to audit the experiment"
+  ],
+  "local_only_generated_directories": [
+    ".git",
+    ".pytest_cache",
+    "tmp",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/checkpoints",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/logs",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/tensorboard",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/cache",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/videos",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/trajectories"
+  ],
+  "excluded_large_or_disposable_patterns": [
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/*.pkl",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/*.npz",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/*.pt",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/*.pth",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/*.zip",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/replay_buffer*",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/trajectory.csv",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/control.csv",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/progress.csv",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/monitor.csv",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/**/logs/"
+  ],
+  "local_cache_note": "The local workspace contains approximately 15.7 GiB of hidden-disturbance replay buffers and other generated training artifacts, plus disposable worktrees. They remain local and are not deleted or uploaded.",
+  "layout_rule": "A directory is represented on GitHub by its reviewable files or a README.md placeholder; no fake checkpoint, replay, or archive files are created.",
+  "update_rule": "Add compact evidence and update the relevant README when a run is complete. Keep raw buffers, model checkpoints, caches, videos, and temporary logs local."
+}

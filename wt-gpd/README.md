@@ -1,0 +1,1 @@
+# wt-gpd`n`nThis directory mirrors the local workspace-level wt-gpd collection. The reviewable current project is under `integration/`; disposable pytest worktrees and local generated artifacts remain local.`n
