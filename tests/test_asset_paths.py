@@ -251,7 +251,8 @@ def test_cache_directory_is_absolute_when_temp_candidate_is_relative(monkeypatch
             monkeypatch.setattr(
                 asset_module.tempfile, "gettempdir", lambda: "relative-cache"
             )
-            monkeypatch.setenv("PUBLIC", temp_dir)
+            monkeypatch.delenv("PUBLIC", raising=False)
+            monkeypatch.setenv("SystemRoot", "relative-system-root")
             monkeypatch.setattr(asset_module, "_CACHE_DIR", None)
             monkeypatch.setattr(asset_module, "_CACHE_PID", None)
 

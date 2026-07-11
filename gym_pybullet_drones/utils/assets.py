@@ -258,7 +258,9 @@ def _process_cache_dir():
         if candidate is None:
             continue
         candidate = Path(candidate)
-        if not candidate.is_absolute() or not str(candidate).isascii():
+        if not candidate.is_absolute():
+            candidate = candidate.resolve()
+        if not str(candidate).isascii():
             continue
         try:
             candidate = _regular_directory(candidate, "cache candidate")
