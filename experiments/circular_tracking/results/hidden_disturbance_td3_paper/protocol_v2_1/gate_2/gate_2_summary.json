@@ -1,0 +1,12 @@
+{
+  "gate": "Gate 2",
+  "result": "PASS",
+  "budget": 2000,
+  "criteria": "Each seed/controller has at least one full 960-step episode and replay is dominated by nonterminal transitions.",
+  "runs": [
+    {"seed": 0, "mode": "direct_td3", "complete_960_count": 1, "episode_lengths": [960, 678], "nonterminal_fraction": 0.9990000128746033},
+    {"seed": 0, "mode": "residual_td3", "complete_960_count": 2, "episode_lengths": [960, 960], "nonterminal_fraction": 0.9990000128746033},
+    {"seed": 1, "mode": "direct_td3", "complete_960_count": 1, "episode_lengths": [960, 98, 750], "nonterminal_fraction": 0.9984999895095825},
+    {"seed": 1, "mode": "residual_td3", "complete_960_count": 2, "episode_lengths": [960, 960], "nonterminal_fraction": 0.9990000128746033}
+  ]
+}

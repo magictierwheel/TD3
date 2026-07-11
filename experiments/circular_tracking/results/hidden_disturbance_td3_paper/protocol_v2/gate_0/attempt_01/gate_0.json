@@ -1,0 +1,48 @@
+{
+  "episodes": {
+    "delayed_failure": {
+      "reason": "tilt_limit",
+      "steps": 203,
+      "terminated": true,
+      "truncated": false
+    },
+    "immediate_failure": {
+      "reason": "tilt_limit",
+      "steps": 3,
+      "terminated": true,
+      "truncated": false
+    },
+    "safe": {
+      "reason": "",
+      "steps": 960,
+      "terminated": false,
+      "truncated": true
+    }
+  },
+  "gamma": 0.99,
+  "gate": "Gate 0",
+  "result": "PASS",
+  "returns": {
+    "delayed_failure": -33.09307902124522,
+    "immediate_failure": -52.342832739064136,
+    "safe": -4.395317352874328
+  },
+  "sb3_time_limit_truncated_marker": true,
+  "static": {
+    "actor_output_abs_max": 0.001933009596541524,
+    "final_gradient_nonzero": true,
+    "noise": {
+      "action_scale_rpm": 7234.214591750351,
+      "behavior_clip_normalized": 0.05,
+      "behavior_clip_rpm": 361.71072958751756,
+      "behavior_sigma_normalized": 0.029999999999999995,
+      "behavior_sigma_rpm": 217.0264377525105,
+      "target_clip_normalized": 0.14999999999999997,
+      "target_clip_rpm": 1085.1321887625525,
+      "target_sigma_normalized": 0.05999999999999999,
+      "target_sigma_rpm": 434.052875505021
+    },
+    "normalized_abs_max": 0.6864614486694336,
+    "pre_tanh_finite": true
+  }
+}

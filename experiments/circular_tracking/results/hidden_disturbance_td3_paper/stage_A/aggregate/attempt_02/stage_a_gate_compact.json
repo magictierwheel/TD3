@@ -1,0 +1,66 @@
+{
+  "compound_improvement_vs_direct_td3": true,
+  "compound_improvement_vs_pid": false,
+  "decision": "GO",
+  "raw_evidence": {
+    "csv_metrics": "stage_a_rollouts_merged.csv",
+    "rows_by_scenario_controller": {
+      "compound": {
+        "direct_td3": 10,
+        "pid": 10,
+        "residual_td3": 10
+      },
+      "standard": {
+        "direct_td3": 10,
+        "pid": 10,
+        "residual_td3": 10
+      }
+    },
+    "sha256": "4ab3ee412b5413d6e7f4a147528bea025b8fc0665824fad4fabe92250e9bade7",
+    "storage": "local_untracked_stage_a_decision.json"
+  },
+  "rules": {
+    "compound": "at least one fewer failure of 10, or equal failures with failure-penalized horizon error <= 0.95 * comparator",
+    "standard": "zero residual failures and success-only RMSE <= 1.10 * PID",
+    "vs_direct_td3": "equal_failures_and_horizon_error_at_least_5_percent_lower",
+    "vs_pid": "no_required_compound_improvement"
+  },
+  "selected_checkpoint": 5000,
+  "standard_gate": true,
+  "summaries": {
+    "compound": {
+      "direct_td3": {
+        "failure_count": 10,
+        "failure_penalized_horizon_error": 2.9917007241662175,
+        "success_only_steady_position_rmse": null
+      },
+      "pid": {
+        "failure_count": 0,
+        "failure_penalized_horizon_error": 0.0674917571395349,
+        "success_only_steady_position_rmse": 0.06814623667064909
+      },
+      "residual_td3": {
+        "failure_count": 10,
+        "failure_penalized_horizon_error": 2.403665706310475,
+        "success_only_steady_position_rmse": null
+      }
+    },
+    "standard": {
+      "direct_td3": {
+        "failure_count": 10,
+        "failure_penalized_horizon_error": 2.9916970223869117,
+        "success_only_steady_position_rmse": null
+      },
+      "pid": {
+        "failure_count": 0,
+        "failure_penalized_horizon_error": 0.009523153543447991,
+        "success_only_steady_position_rmse": 0.009598100748404255
+      },
+      "residual_td3": {
+        "failure_count": 0,
+        "failure_penalized_horizon_error": 0.009523153543447991,
+        "success_only_steady_position_rmse": 0.009598100748404255
+      }
+    }
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "protocol_version": "2.1.0",
+  "status": "frozen_pre_gate_1_standard_confirmation",
+  "frozen_date": "2026-07-10",
+  "last_amended_date": "2026-07-11",
+  "amendment_note": "Protocol v2.1 retains v2's fixed observation scaling, action mapping, reward, termination and held-out isolation. It reclassifies Gate-1 compound altitude failure as unlearned hover-center control insufficiency rather than unsafe exploration, introduces the same training-only scenario curriculum for Direct and Residual, and ramps mixer-space behavior noise only after actor updates begin.",
+  "research_question": "Under identical nonprivileged policy inputs derived from observable flight state and hidden time-varying disturbances, does a PID residual prior improve TD3 safety, sample efficiency, and circular-tracking robustness?",
+  "controllers": [
+    "pid",
+    "direct_td3",
+    "residual_td3"
+  ],
+  "seed_sets": {
+    "unit_test": {"start": 9000, "end": 9099, "inclusive": true},
+    "training": {"start": 0, "end": 4, "inclusive": true},
+    "validation": {"start": 100, "end": 109, "inclusive": true},
+    "test": {"start": 200, "end": 219, "inclusive": true},
+    "unseen": {"start": 300, "end": 319, "inclusive": true}
+  },
+  "trajectory": {
+    "radius_m": 0.3,
+    "period_sec": 10.0,
+    "height_m": 1.0,
+    "training_duration_sec": 20.0,
+    "evaluation_duration_sec": 30.0,
+    "fixed_initial_phase": true
+  },
+  "observation": {
+    "main_history_steps": 8,
+    "single_frame_ablation_steps": 1,
+    "sensor_noise_model": "none",
+    "shared_history_frame_schema": [
+      "position",
+      "velocity",
+      "attitude",
+      "angular_velocity",
+      "reference_position",
+      "reference_velocity",
+      "position_error",
+      "velocity_error",
+      "last_policy_action",
+      "applied_motor_rpm"
+    ],
+    "shared_history_frame_dimension": 32,
+    "shared_policy_feature_after_history": "current_pid_rpm",
+    "shared_policy_feature_dimension": 4,
+    "shared_policy_observation_dimension": 260,
+    "shared_policy_observation_contract": "Direct TD3 and Residual TD3 both receive eight history frames followed by the current four-dimensional RPM command from the same frozen PID at the same control instant. This controller-derived feature is a deterministic function of permitted measurements, reference, and ordinary PID memory; it is not disturbance truth. It must not be provided to only one TD3 mode.",
+    "normalization": {
+      "kind": "fixed_physical_v2",
+      "learned_statistics": false,
+      "rule": "position/reference/error divided by 2 m; velocity/reference/error by 3 m/s; attitude by pi; angular velocity by 10 rad/s; last policy action unchanged; every applied-RPM and PID-RPM field divided by MAX_RPM",
+      "shared_by_training_checkpoint_evaluation": true
+    },
+    "privileged_fields_forbidden": [
+      "wind",
+      "density",
+      "thermal",
+      "thrust_efficiency",
+      "torque_efficiency",
+      "scenario_label",
+      "disturbance_seed"
+    ]
+  },
+  "action": {
+    "dimension": 4,
+    "direct_rpm_span": "MAX_RPM - HOVER_RPM",
+    "residual_rpm_limit": "0.10 * MAX_RPM",
+    "residual_zero_output_initialization": true,
+    "motor_bounds": [0.0, "MAX_RPM"]
+  },
+  "gate": {
+    "inputs": [
+      "position_error",
+      "pid_motor_headroom"
+    ],
+    "error_gate_start_m": 0.03,
+    "error_gate_full_m": 0.2,
+    "headroom_full_fraction": 0.1,
+    "no_gate_ablation": true
+  },
+  "disturbance": {
+    "training_profiles": [
+      "standard",
+      "random_wind",
+      "actuator_loss",
+      "compound"
+    ],
+    "training_profile_probabilities": [0.25, 0.25, 0.25, 0.25],
+    "training_curriculum": {
+      "steps_0_2000": {"standard": 0.75, "random_wind": 0.25, "actuator_loss": 0.0, "compound": 0.0},
+      "steps_2000_5000": "linear interpolation to equal probability",
+      "steps_5000_plus": {"standard": 0.25, "random_wind": 0.25, "actuator_loss": 0.25, "compound": 0.25},
+      "scope": "training sampling only; validation scenarios and seed partitions unchanged"
+    },
+    "train_wind_limit_mps": 1.5,
+    "train_efficiency_range": [0.9, 1.0],
+    "train_knot_interval_sec": [1.0, 3.0],
+    "unseen_wind_limit_mps": 2.5,
+    "unseen_efficiency_range": [0.8, 0.9],
+    "unseen_knot_interval_sec": [0.5, 1.5],
+    "process_horizon": "rollout_duration",
+    "horizon_argument": "required_explicit_finite_positive_seconds",
+    "sample_time_domain": "finite time_sec in [0.0, horizon_sec]; values outside the closed interval raise ValueError",
+    "knot_interval_distribution": "independent continuous uniform on the profile interval",
+    "knot_coverage": "first knot at 0.0; draw full intervals until the final bracketing knot is greater than or equal to horizon_sec; never clip the last interval",
+    "standard_knot_semantics": "constant zero-wind/unit-efficiency value; no stochastic knot schedule required",
+    "initial_stochastic_knot": "draw one profile-distributed value at time 0.0",
+    "wind_vector_distribution": "uniform by area in the horizontal disk: radius = limit * sqrt(U[0,1)), angle = U[0,2*pi)",
+    "efficiency_distribution": "thrust and torque efficiencies are independent continuous-uniform draws within the profile range at every knot",
+    "interpolation": "componentwise linear interpolation between adjacent pre-generated knots",
+    "rng_scope": "one local numpy.random.Generator per process; construction and sampling never mutate global NumPy RNG state",
+    "unseen_geometry_scope": "nominal_only"
+  },
+  "simulation": {
+    "physics_mode": "PYB",
+    "pybullet_frequency_hz": 240,
+    "control_frequency_hz": 48,
+    "physics_substeps_per_control_step": 5,
+    "disturbance_substep_clock": "sample at substep_index / pybullet_frequency_hz before applying each physics substep; first sample is at 0.0 seconds",
+    "post_step_state_time": "after the final substep, reference/reward/termination/info use completed_substep_count / pybullet_frequency_hz",
+    "wind_force_model": "incremental quadratic drag relative to the simulator's still-air PYB baseline: -0.5*rho*CDA*(norm(v-w)*(v-w) - norm(v)*v)",
+    "air_density_kg_m3": 1.225,
+    "wind_cda_m2": 0.05,
+    "wind_force_frame": "WORLD_FRAME",
+    "wind_force_link_index": -1,
+    "wind_force_application_position": "live base world position queried from PyBullet at every substep",
+    "standard_extra_wind_force": "exactly zero because w = 0 in the incremental model",
+    "actuator_efficiency_model": "one scalar thrust efficiency multiplies KF*rpm^2 for all four motors and one scalar torque efficiency multiplies KM*rpm^2 for all four motors at each substep"
+  },
+  "termination": {
+    "helper_semantics": "one pure current-state helper is called independently by reward and termination",
+    "priority_order": [
+      "non_finite_state",
+      "altitude_limit",
+      "tilt_limit",
+      "horizontal_error_limit"
+    ],
+    "altitude_reference_error_abs_max_m": 1.5,
+    "absolute_altitude_min_m": 0.1,
+    "absolute_altitude_max_m": 3.0,
+    "roll_abs_max_rad": 0.9,
+    "pitch_abs_max_rad": 0.9,
+    "horizontal_tracking_error_max_m": 2.0,
+    "boundary_semantics": "failure occurs only when a max is strictly exceeded or a min is strictly undershot"
+  },
+  "reward": {
+    "formula": "-(2.0*position_error_norm + 0.5*velocity_error_norm + 1.0*altitude_error_norm + 0.2*tilt_norm + 0.05*applied_motor_energy + 0.05*applied_motor_smoothness + 2.0*saturation_fraction) - (50.0 if current_failure_reason else 0.0)",
+    "normalization": {
+      "position_error_norm": "norm(reference_position - measured_position) / 2.0",
+      "velocity_error_norm": "norm(reference_velocity - measured_velocity) / 3.0",
+      "altitude_error_norm": "abs(measured_z - reference_z) / 2.0",
+      "tilt_norm": "norm([roll, pitch]) / pi",
+      "applied_motor_energy": "mean((applied_rpm / MAX_RPM) ** 2)",
+      "applied_motor_smoothness": "mean(abs(applied_rpm - previous_applied_rpm)) / MAX_RPM",
+      "saturation_fraction": "mean((applied_rpm <= 0) or (applied_rpm >= MAX_RPM))"
+    },
+    "terminal_semantics": "The failure reason is computed from the current state by one pure helper. Reward and termination call the same helper, so the penalty is applied on the terminal transition itself.",
+    "position": 2.0,
+    "velocity": 0.5,
+    "altitude": 1.0,
+    "tilt": 0.2,
+    "applied_motor_energy": 0.05,
+    "applied_motor_smoothness": 0.05,
+    "saturation": 2.0,
+    "terminal_failure_penalty": 50.0,
+    "shared_by_td3_modes": true
+  },
+  "td3": {
+    "network_architecture": [256, 256],
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "buffer_size": 1000000,
+    "learning_starts": 2000,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "train_freq": 1,
+    "gradient_steps": 1,
+    "policy_delay": 2,
+    "updates_start_after_steps": 2000,
+    "warmup_action_source": "0-2000: Direct bounded smooth collective-only RPM exploration (zero torque), Residual bounded smooth residual exploration on PID; never action_space.sample(). After actor updates begin, correlated mixer-space differential exploration ramps linearly to its calibrated value by step 5000.",
+    "warmup_direct_action_abs_max": 0.05,
+    "warmup_action_slew_abs_max": 0.02,
+    "direct_final_actor_initialization": "uniform[-0.003,0.003] weight and zero bias; synchronize actor_target",
+    "residual_final_actor_initialization": "zero weight and zero bias; synchronize actor_target",
+    "noise_physical_rpm": {
+      "direct_behavior_sigma": 217.0264377525105,
+      "residual_behavior_sigma_gate_1": 217.0264377525105,
+      "direct_target_sigma": 434.052875505021,
+      "residual_target_sigma_gate_1": 434.052875505021,
+      "direct_target_clip": 1085.1321887625525,
+      "residual_target_clip_gate_1": 1085.1321887625525
+    },
+    "normalized_noise": {
+      "direct_behavior_sigma": 0.03,
+      "direct_behavior_clip": 0.05,
+      "direct_target_sigma": 0.06,
+      "direct_target_clip": 0.15,
+      "residual_behavior_sigma": 0.1,
+      "residual_behavior_clip": 0.05,
+      "residual_target_sigma": 0.2,
+      "residual_target_clip": 0.5
+    },
+    "resume_state": ["model_and_optimizers", "replay_buffer", "fixed_observation_normalization", "num_timesteps", "python_numpy_torch_and_sampler_rng"]
+  },
+  "budgets": {
+    "gate_2": 2000,
+    "gate_3": 5000,
+    "stage_a": 20000,
+    "stage_b": 50000,
+    "stage_c_max": 100000,
+    "checkpoints": [5000, 10000, 20000, 50000, 100000]
+  },
+  "stage_gates": {
+    "stage_a": {
+      "scenario": "compound",
+      "standard_gate": "residual standard failure_count == 0 AND residual standard steady_position_rmse_success_only <= 1.10 * pid standard steady_position_rmse_success_only",
+      "comparison_objects": ["pid", "direct_td3"],
+      "comparison_logic": "standard_gate AND (compound_improvement_vs_pid OR compound_improvement_vs_direct_td3)",
+      "compound_improvement": "residual failure_count <= comparator failure_count - 1 OR (failure_count equal AND residual failure_penalized_horizon_error <= 0.95 * comparator failure_penalized_horizon_error)"
+    },
+    "stage_b": {
+      "scenario": "compound",
+      "per_training_seed_direction": "standard_gate AND compound_improvement_vs_pid AND compound_improvement_vs_direct_td3",
+      "required_seed_count": 2,
+      "total_seed_count": 3
+    },
+    "stage_c": {
+      "scenario": "compound",
+      "per_training_seed_direction": "standard_gate AND compound_improvement_vs_pid AND compound_improvement_vs_direct_td3",
+      "positive_claim_seed_count": 4,
+      "total_seed_count": 5,
+      "confidence_interval_requirement": "clustered_or_hierarchical_95_percent_ci"
+    },
+    "standard_failure_count": 0,
+    "standard_rmse_ratio_to_pid_max": 1.1,
+    "stage_a_validation_seeds": 10,
+    "stage_a_min_failure_count_reduction": 1,
+    "stage_a_min_failure_penalized_error_improvement_fraction": 0.05,
+    "stage_b_required_training_seeds": 2,
+    "stage_b_total_training_seeds": 3,
+    "stage_c_positive_direction_seeds": 4,
+    "stage_c_total_training_seeds": 5,
+    "global_checkpoint_order": [
+      "failure_rate",
+      "failure_penalized_horizon_error",
+      "steady_position_rmse_success_only",
+      "smaller_budget"
+    ]
+  },
+  "ablation": {
+    "run_only_after_stage_b_go": true,
+    "training_seeds": [0, 1, 2],
+    "budget": 50000,
+    "scenarios": [
+      "standard",
+      "compound"
+    ],
+    "variants": [
+      "residual_td3_no_gate",
+      "residual_td3_single_frame",
+      "zero_initial_residual",
+      "sample_budget_checkpoints"
+    ]
+  },
+  "runtime": {
+    "python": "3.11",
+    "torch_device": "cpu",
+    "max_training_processes": 4,
+    "max_evaluation_workers": 6,
+    "threads_per_process": 1
+  },
+  "reporting": {
+    "failure_first": true,
+    "hierarchical_confidence_interval": true,
+    "geometry_generalization_claim": "unsupported",
+    "legacy_results_allowed_as_main_evidence": false
+  }
+}

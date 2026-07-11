@@ -1,0 +1,21 @@
+{
+  "command": [
+    "D:\\rl_quadrotor_envs\\Python311\\python.exe",
+    "-m",
+    "__main__",
+    "--mode",
+    "residual_td3",
+    "--seed",
+    "0",
+    "--total-timesteps",
+    "2000",
+    "--output-folder",
+    "E:\\1-AI辅助工作\\科研项目\\强化学习\\wt-gpd\\integration\\experiments\\circular_tracking\\results\\hidden_disturbance_td3_paper\\protocol_v2_1\\gate_2\\train\\residual_td3\\seed_000\\target_002000\\attempt_01"
+  ],
+  "config_sha256": "57d4531e9005eb7a8cd9faeb2b2e07f801fc293f307dfd083071c3ab3eff6a04",
+  "git_sha": "f49513f4ed069ac5a0c965889b475048dd3f153a",
+  "protocol_hash": "16781e621b316b2d8b3c9811cefd775b2e4ee2c931b275bcc059edc803d9f259",
+  "schema_version": 1,
+  "started_at_utc": "2026-07-11T11:58:14.948114Z",
+  "status": "running"
+}

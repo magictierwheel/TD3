@@ -1,0 +1,52 @@
+{
+  "aggregation": "global checkpoint selector over Direct/Residual rows at 5k, 10k and 20k; PID rows retained once because they are checkpoint-invariant and paired-identical",
+  "decision": "GO",
+  "environment_hash_raw_bytes": "c0cd3db078c52c274ef492561ad965961b7e990911805294ea7ece07f2a05129",
+  "input_attempts": [
+    {
+      "checkpoint": 5000,
+      "path": "experiments\\circular_tracking\\results\\hidden_disturbance_td3_paper\\stage_A\\validation\\budget_005000\\attempt_02\\stage_a_rollouts.json",
+      "rows": 120,
+      "sha256": "37f7fea00ea2cf0085d810f8a7e38c159ecb3e3fe04bb568279d2310076555c7"
+    },
+    {
+      "checkpoint": 10000,
+      "path": "experiments\\circular_tracking\\results\\hidden_disturbance_td3_paper\\stage_A\\validation\\budget_010000\\attempt_02\\stage_a_rollouts.json",
+      "rows": 120,
+      "sha256": "7d2a15d858ab2e5533b695036e5b630e8074277c3b748d36c8f5ed00006bdfd6"
+    },
+    {
+      "checkpoint": 20000,
+      "path": "experiments\\circular_tracking\\results\\hidden_disturbance_td3_paper\\stage_A\\validation\\budget_020000\\attempt_02\\stage_a_rollouts.json",
+      "rows": 120,
+      "sha256": "374f7ce543dbb36b86cc040351d2dcca38963768dff77d5b653fdc654629d059"
+    }
+  ],
+  "merged_row_count": 280,
+  "pid_config_hash_canonical": "59386fa4e5b98d51ec18eb57b349b62833762884751fe0593c87200ee26190e0",
+  "pid_config_hash_raw_bytes": "c7530d2725d4c55b31252f89c1ed126ae140a35789b3c653b86e955165e48ef3",
+  "protocol_hash_canonical": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+  "protocol_hash_raw_bytes": "34c4bbeafca2b4f3e972661719e74243537eb5a8f4f7b03238d51789ce9e2968",
+  "scenarios": [
+    "standard",
+    "random_wind",
+    "actuator_loss",
+    "compound"
+  ],
+  "schema_version": 1,
+  "selected_checkpoint": 5000,
+  "source_git_sha": "3006bcce8dd944382305c42d0d37da26a366e48e",
+  "training_seed": 0,
+  "validation_seeds": [
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109
+  ]
+}

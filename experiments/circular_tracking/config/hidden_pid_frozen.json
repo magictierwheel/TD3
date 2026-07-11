@@ -1,0 +1,135 @@
+{
+  "acceptance": {
+    "failure": false,
+    "path_length_ratio_inclusive": [
+      0.9,
+      1.1
+    ],
+    "required_completed_steps": 1440,
+    "steady_position_rmse_strict_max_m": 0.1
+  },
+  "attempt_evidence": {
+    "attempt_root": "E:\\rlbk\\hidden-td3-pid-validation-20260711\\attempt_02",
+    "config_payload_sha256": "ec85daab8da755478f581b1429b28bb9924c4dce232ef5f37dd2daeb6b81587c",
+    "evidence_index": {
+      "content_sha256": "c94b41c77eed7f10dcb1d319f347458dec00c2d9c4334ee22def536383f7b851",
+      "file_sha256": "37c076ac2ac271cae1aa2acfcd58d5c516e11ab2c12481816c66f50f53b4a6f3",
+      "path": "E:\\rlbk\\hidden-td3-pid-validation-20260711\\attempt_02\\evidence_index.json"
+    },
+    "schema_version": 2
+  },
+  "candidate_count": 81,
+  "candidate_parameter_order": [
+    "reference_velocity_gain",
+    "pid_xy_p_scale",
+    "pid_xy_d_scale",
+    "pid_target_step_limit"
+  ],
+  "candidate_values": {
+    "pid_target_step_limit": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "pid_xy_d_scale": [
+      0.75,
+      1.0,
+      1.25
+    ],
+    "pid_xy_p_scale": [
+      0.5,
+      0.75,
+      1.0
+    ],
+    "reference_velocity_gain": [
+      0.5,
+      0.75,
+      1.0
+    ]
+  },
+  "command": [
+    "D:\\rl_quadrotor_envs\\Python311\\python.exe",
+    "-m",
+    "experiments.circular_tracking.scripts.td3.tune_hidden_pid",
+    "--output",
+    "E:\\rlbk\\hidden-td3-pid-validation-20260711\\hidden_pid_frozen_attempt_02.json",
+    "--duration-sec",
+    "30",
+    "--seed",
+    "100",
+    "--workers",
+    "4",
+    "--attempt-root",
+    "E:\\rlbk\\hidden-td3-pid-validation-20260711\\attempt_02"
+  ],
+  "control": {
+    "action_bounds": [
+      -1.0,
+      1.0
+    ],
+    "action_shape": [
+      1
+    ],
+    "controller_mode": "pid",
+    "disturbance_profile": "standard"
+  },
+  "controller": "pid",
+  "environment_schema": [
+    "position",
+    "velocity",
+    "attitude",
+    "angular_velocity",
+    "reference_position",
+    "reference_velocity",
+    "position_error",
+    "velocity_error",
+    "last_policy_action",
+    "applied_motor_rpm"
+  ],
+  "environment_source_sha256": "782617e6dcd15411aaef5dbc9a03443d96d399f4bfc3293b3a81d0df46cc91c2",
+  "evaluation_duration_sec": 30.0,
+  "evaluation_git_sha": "f19e99103d2700b3a9bd5cb4baf9ec2e31b7385d",
+  "evaluation_seed": 100,
+  "geometry": {
+    "height_m": 1.0,
+    "period_sec": 10.0,
+    "radius_m": 0.3
+  },
+  "package_versions": {
+    "control": "0.10.2",
+    "gymnasium": "1.2.3",
+    "numpy": "2.4.6",
+    "pybullet": "3.2.7",
+    "stable-baselines3": "2.8.0",
+    "torch": "2.13.0"
+  },
+  "parameters": {
+    "pid_target_step_limit": 0.0,
+    "pid_xy_d_scale": 1.25,
+    "pid_xy_p_scale": 1.0,
+    "reference_velocity_gain": 1.0
+  },
+  "pid_payload_hash": "624e86cf7452410e15608774d5630512bd8a7f48f5d4e8d30fd5a8dcca37b99a",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "profile": "standard",
+  "protocol_hash": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+  "protocol_path": "experiments/circular_tracking/config/hidden_td3_protocol.json",
+  "python": "3.11.9",
+  "ranking_hash": "8c4c163f9f36fd61714c11d1527dd9dabfaf1f51014f83678bccdc000c95a7c1",
+  "schema_version": 4,
+  "simulation": {
+    "control_frequency_hz": 48,
+    "physics_frequency_hz": 240,
+    "physics_mode": "PYB",
+    "physics_substeps_per_control_step": 5
+  },
+  "winner_index": 78,
+  "winner_metrics": {
+    "completed_steps": 1440,
+    "control_energy": 0.4445538910993886,
+    "mean_phase_error": 0.013644361802093783,
+    "path_length_ratio": 1.0226686531992177,
+    "rotor_saturation_rate": 0.0,
+    "steady_position_rmse": 0.009598100748404252
+  }
+}

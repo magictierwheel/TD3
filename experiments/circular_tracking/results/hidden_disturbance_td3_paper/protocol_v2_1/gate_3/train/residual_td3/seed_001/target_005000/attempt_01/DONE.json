@@ -1,0 +1,12 @@
+{
+  "checkpoint_folder": "checkpoints",
+  "config_sha256": "24c95f16935adf1c8c3d0f9793d882e6ba15a7945488aa87bab54ff9e565ce88",
+  "finished_at_utc": "2026-07-11T12:10:51.695811Z",
+  "git_sha": "0079879968992042b62a6e8e85f3474d7655ca11",
+  "model_path": "model.zip",
+  "progress_path": "progress.csv",
+  "protocol_hash": "16781e621b316b2d8b3c9811cefd775b2e4ee2c931b275bcc059edc803d9f259",
+  "schema_version": 1,
+  "status": "completed",
+  "total_timesteps": 5000
+}

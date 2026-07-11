@@ -1,0 +1,141 @@
+{
+  "action_semantics": "normalized_direct_motor_rpm",
+  "checkpoint_steps": [
+    5000,
+    10000,
+    20000,
+    50000,
+    100000
+  ],
+  "environment_schema": [
+    "position",
+    "velocity",
+    "attitude",
+    "angular_velocity",
+    "reference_position",
+    "reference_velocity",
+    "position_error",
+    "velocity_error",
+    "last_policy_action",
+    "applied_motor_rpm"
+  ],
+  "environment_source_sha256": "782617e6dcd15411aaef5dbc9a03443d96d399f4bfc3293b3a81d0df46cc91c2",
+  "frozen_pid_config_hash": "59386fa4e5b98d51ec18eb57b349b62833762884751fe0593c87200ee26190e0",
+  "frozen_pid_config_path": "experiments/circular_tracking/config/hidden_pid_frozen.json",
+  "frozen_pid_parameters": {
+    "pid_target_step_limit": 0.0,
+    "pid_xy_d_scale": 1.25,
+    "pid_xy_p_scale": 1.0,
+    "reference_velocity_gain": 1.0
+  },
+  "frozen_pid_payload_hash": "624e86cf7452410e15608774d5630512bd8a7f48f5d4e8d30fd5a8dcca37b99a",
+  "frozen_pid_source_protocol_hash": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+  "git_sha": "f49513f4ed069ac5a0c965889b475048dd3f153a",
+  "interface_schema": {
+    "action_dimension": 4,
+    "history_length": 8,
+    "normalized_action_bounds": [
+      -1.0,
+      1.0
+    ]
+  },
+  "mode": "direct_td3",
+  "noise_physical": {
+    "action_scale_rpm": 7234.214591750351,
+    "behavior_clip_normalized": 0.05,
+    "behavior_clip_rpm": 361.71072958751756,
+    "behavior_sigma_normalized": 0.029999999999999995,
+    "behavior_sigma_rpm": 217.0264377525105,
+    "target_clip_normalized": 0.14999999999999997,
+    "target_clip_rpm": 1085.1321887625525,
+    "target_sigma_normalized": 0.05999999999999999,
+    "target_sigma_rpm": 434.052875505021
+  },
+  "observation_normalization": {
+    "field_scales": {
+      "angular_velocity_radps": 10.0,
+      "applied_rpm": "MAX_RPM",
+      "attitude_rad": "pi",
+      "last_policy_action": 1.0,
+      "pid_rpm": "MAX_RPM",
+      "position_error_m": 2.0,
+      "position_m": 2.0,
+      "reference_position_m": 2.0,
+      "reference_velocity_mps": 3.0,
+      "velocity_error_mps": 3.0,
+      "velocity_mps": 3.0
+    },
+    "kind": "fixed_physical_v2",
+    "learned_statistics": false
+  },
+  "package_versions": {
+    "control": "0.10.2",
+    "gymnasium": "1.2.3",
+    "numpy": "2.4.6",
+    "pybullet": "3.2.7",
+    "stable-baselines3": "2.8.0",
+    "torch": "2.13.0"
+  },
+  "protocol_hash": "16781e621b316b2d8b3c9811cefd775b2e4ee2c931b275bcc059edc803d9f259",
+  "protocol_path": "experiments/circular_tracking/config/hidden_td3_protocol.json",
+  "rollout_duration_sec": 20.0,
+  "runtime": {
+    "python": "3.11",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "threads_per_process": 1,
+    "torch_device": "cpu"
+  },
+  "schema_version": 2,
+  "seed": 1,
+  "td3": {
+    "batch_size": 256,
+    "buffer_size": 1000000,
+    "gamma": 0.99,
+    "gradient_steps": 1,
+    "learning_rate": 0.001,
+    "learning_starts": 2000,
+    "policy": "MlpPolicy",
+    "policy_delay": 2,
+    "policy_kwargs": {
+      "net_arch": [
+        256,
+        256
+      ]
+    },
+    "tau": 0.005,
+    "train_freq": 1
+  },
+  "total_timesteps": 2000,
+  "training_curriculum": {
+    "steps_0_2000": [
+      0.75,
+      0.25,
+      0.0,
+      0.0
+    ],
+    "steps_2000_5000": "linear_to_equal_four_profile_mix",
+    "steps_5000_plus": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ]
+  },
+  "training_profile_probabilities": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "training_profiles": [
+    "standard",
+    "random_wind",
+    "actuator_loss",
+    "compound"
+  ],
+  "zero_output_initialization": false
+}

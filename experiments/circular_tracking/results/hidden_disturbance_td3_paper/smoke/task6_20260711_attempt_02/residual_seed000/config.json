@@ -1,0 +1,100 @@
+{
+  "action_semantics": "gated_normalized_pid_motor_rpm_residual",
+  "checkpoint_steps": [
+    5000,
+    10000,
+    20000,
+    50000,
+    100000
+  ],
+  "environment_schema": [
+    "position",
+    "velocity",
+    "attitude",
+    "angular_velocity",
+    "reference_position",
+    "reference_velocity",
+    "position_error",
+    "velocity_error",
+    "last_policy_action",
+    "applied_motor_rpm"
+  ],
+  "environment_source_sha256": "782617e6dcd15411aaef5dbc9a03443d96d399f4bfc3293b3a81d0df46cc91c2",
+  "frozen_pid_config_hash": "59386fa4e5b98d51ec18eb57b349b62833762884751fe0593c87200ee26190e0",
+  "frozen_pid_config_path": "experiments/circular_tracking/config/hidden_pid_frozen.json",
+  "frozen_pid_parameters": {
+    "pid_target_step_limit": 0.0,
+    "pid_xy_d_scale": 1.25,
+    "pid_xy_p_scale": 1.0,
+    "reference_velocity_gain": 1.0
+  },
+  "frozen_pid_payload_hash": "624e86cf7452410e15608774d5630512bd8a7f48f5d4e8d30fd5a8dcca37b99a",
+  "git_sha": "87a8f5f1421449f42c034738bf528d849de9c89e",
+  "interface_schema": {
+    "action_dimension": 4,
+    "history_length": 8,
+    "normalized_action_bounds": [
+      -1.0,
+      1.0
+    ]
+  },
+  "mode": "residual_td3",
+  "package_versions": {
+    "control": "0.10.2",
+    "gymnasium": "1.2.3",
+    "numpy": "2.4.6",
+    "pybullet": "3.2.7",
+    "stable-baselines3": "2.8.0",
+    "torch": "2.13.0"
+  },
+  "protocol_hash": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+  "protocol_path": "experiments/circular_tracking/config/hidden_td3_protocol.json",
+  "rollout_duration_sec": 20.0,
+  "runtime": {
+    "python": "3.11",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "threads_per_process": 1,
+    "torch_device": "cpu"
+  },
+  "schema_version": 1,
+  "seed": 0,
+  "td3": {
+    "action_noise_sigma": 0.1,
+    "batch_size": 256,
+    "buffer_size": 1000000,
+    "gamma": 0.99,
+    "gradient_steps": 1,
+    "learning_rate": 0.001,
+    "learning_starts": 2000,
+    "policy": "MlpPolicy",
+    "policy_delay": 2,
+    "policy_kwargs": {
+      "net_arch": [
+        256,
+        256
+      ]
+    },
+    "target_noise_clip": 0.5,
+    "target_policy_noise": 0.2,
+    "tau": 0.005,
+    "train_freq": 1
+  },
+  "total_timesteps": 200,
+  "training_profile_probabilities": [
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "training_profiles": [
+    "standard",
+    "random_wind",
+    "actuator_loss",
+    "compound"
+  ],
+  "zero_output_initialization": true
+}

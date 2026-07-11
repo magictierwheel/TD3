@@ -1,0 +1,15 @@
+{
+  "attempt": 2,
+  "gate": "Gate 1",
+  "mode": "direct_td3",
+  "result": "NO-GO",
+  "scenario": "compound",
+  "seed": 0,
+  "steps": 73,
+  "failure_reason": "altitude_limit",
+  "tilt_limit": false,
+  "motor_boundary_fraction": 0.0,
+  "max_action_abs": 0.014950787648558617,
+  "max_action_slew": 0.01306281890720129,
+  "rule": "Second Gate-1 failure: stop before Gate 2, Gate 3, Stage A and Stage B."
+}

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "D:\\rl_quadrotor_envs\\Python311\\python.exe",
+    "-m",
+    "__main__",
+    "--mode",
+    "residual_td3",
+    "--seed",
+    "0",
+    "--total-timesteps",
+    "5000",
+    "--output-folder",
+    "experiments/circular_tracking/results/hidden_disturbance_td3_paper/protocol_v2_1/gate_3/train/residual_td3/seed_000/target_005000/attempt_01"
+  ],
+  "config_sha256": "265191601b54943fb51253f8f17e3e05a0c1b46a9897358fc68df10d8fb835a1",
+  "git_sha": "0079879968992042b62a6e8e85f3474d7655ca11",
+  "protocol_hash": "16781e621b316b2d8b3c9811cefd775b2e4ee2c931b275bcc059edc803d9f259",
+  "schema_version": 1,
+  "started_at_utc": "2026-07-11T12:09:52.527277Z",
+  "status": "running"
+}

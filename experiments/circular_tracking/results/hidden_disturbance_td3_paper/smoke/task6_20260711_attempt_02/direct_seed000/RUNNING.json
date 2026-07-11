@@ -1,0 +1,21 @@
+{
+  "command": [
+    "D:\\rl_quadrotor_envs\\Python311\\python.exe",
+    "-m",
+    "__main__",
+    "--seed",
+    "0",
+    "--total-timesteps",
+    "200",
+    "--mode",
+    "direct_td3",
+    "--output-folder",
+    "experiments\\circular_tracking\\results\\hidden_disturbance_td3_paper\\smoke\\task6_20260711_attempt_02\\direct_seed000"
+  ],
+  "config_sha256": "2fc7995168e2346474050f17d9eb2e6496549277cce196c33f039cbea12b08ef",
+  "git_sha": "87a8f5f1421449f42c034738bf528d849de9c89e",
+  "protocol_hash": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+  "schema_version": 1,
+  "started_at_utc": "2026-07-11T07:53:52.666863Z",
+  "status": "running"
+}

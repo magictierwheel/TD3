@@ -1,0 +1,44 @@
+{
+  "gate": "Gate 3 v2.1",
+  "result": "NO-GO",
+  "timestamp": "2026-07-11T20:13:41.9311986+08:00",
+  "git_sha": "0079879968992042b62a6e8e85f3474d7655ca11",
+  "protocol_hash": "16781e621b316b2d8b3c9811cefd775b2e4ee2c931b275bcc059edc803d9f259",
+  "budget": 5000,
+  "criterion": "After updates begin, median episode length must not decline by more than 50% from the pre-2000-step median, and the training must not collapse into repeated 3-4-step episodes.",
+  "direct_td3": {
+    "seed_0": {
+      "pre_2000_episode_lengths": [960, 678],
+      "pre_2000_median": 819.0,
+      "post_2000_median": 11.0,
+      "required_minimum_post_median": 409.5,
+      "post_2000_episode_count": 201,
+      "post_2000_3_or_4_step_count": 31,
+      "post_2000_3_or_4_step_fraction": 0.15422885572139303,
+      "actor_l2_delta_from_fresh_same_seed": 24.727720260620117,
+      "actor_final_layer_l2_delta_from_fresh_same_seed": 1.7724951282143593
+    },
+    "seed_1": {
+      "pre_2000_episode_lengths": [960, 98, 750],
+      "pre_2000_median": 750.0,
+      "post_2000_median": 14.0,
+      "required_minimum_post_median": 375.0,
+      "post_2000_episode_count": 201,
+      "post_2000_3_or_4_step_count": 16,
+      "post_2000_3_or_4_step_fraction": 0.07960199004975124,
+      "actor_l2_delta_from_fresh_same_seed": 24.205041885375977,
+      "actor_final_layer_l2_delta_from_fresh_same_seed": 1.849396452307701
+    }
+  },
+  "residual_td3": {
+    "seed_0": {"pre_2000_median": 960.0, "post_2000_median": 960.0},
+    "seed_1": {"pre_2000_median": 960.0, "post_2000_median": 808.0}
+  },
+  "interpretation": "The Direct actor updates substantially, but its behavior collapses after learning starts. The controlled pilot therefore fails before deterministic training-seed rollouts or additional telemetry are necessary. No Stage A run was launched.",
+  "run_roots": [
+    "train/direct_td3/seed_000/target_005000/attempt_01",
+    "train/direct_td3/seed_001/target_005000/attempt_01",
+    "train/residual_td3/seed_000/target_005000/attempt_01",
+    "train/residual_td3/seed_001/target_005000/attempt_01"
+  ]
+}
