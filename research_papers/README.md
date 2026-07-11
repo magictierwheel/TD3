@@ -1,1 +1,0 @@
-# Research papers`n`nThis directory mirrors the local workspace-level research_papers directory. Large or disposable local artifacts are not part of the public snapshot.`n

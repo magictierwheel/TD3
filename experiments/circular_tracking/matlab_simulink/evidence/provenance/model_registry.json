@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "models": [
+    {"name": "quadrotor_dust.slx", "size_bytes": 115894, "sha256": "60456557b48376b1af9efaea3d65f751e27d53bd1e922fc8064719572c51f6b8"},
+    {"name": "quadrotor_standard.slx", "size_bytes": 115611, "sha256": "e78267d2cf58cc103555301bbe235c7210f49b189a27e1512b6db1fcb7a7d174"},
+    {"name": "quadrotor_strategy_adrc.slx", "size_bytes": 128432, "sha256": "297c9241d8bf03f30af4d88f17bdeff6d989b9c272935a86b51c08c953c560d5"},
+    {"name": "quadrotor_strategy_mpc.slx", "size_bytes": 128499, "sha256": "85fcc40fd13d8b6ef6f294ec2fa686d13c0f958d99d2ff77d2a811256917f3da"},
+    {"name": "quadrotor_strategy_pid_ff.slx", "size_bytes": 128438, "sha256": "d15a0f0622449a4d00b017f1457de7d904fcffb37f6a2623a3aa1479a144dee1"},
+    {"name": "quadrotor_strategy_pid.slx", "size_bytes": 128486, "sha256": "46d14fd0c62fc9eaacf2e285582f4a1898fc99933d6904f8d035d1ce56eaa866"},
+    {"name": "quadrotor_strategy_rl_v2.slx", "size_bytes": 131867, "sha256": "bc57817e82d89b5adf1249ec2e65385f44a6f5571586ae47cc0e51de8c713c52"},
+    {"name": "quadrotor_strategy_rl.slx", "size_bytes": 128546, "sha256": "068d1b7647ddb7a053a7d099989ba0ff608eedfca049a948cd95cc994d562241"},
+    {"name": "quadrotor_temperature.slx", "size_bytes": 115803, "sha256": "2a2c12ea323c10e7f0bca04cbd982159f1143f171a5dee7de17830e170a5c2ed"}
+  ]
+}

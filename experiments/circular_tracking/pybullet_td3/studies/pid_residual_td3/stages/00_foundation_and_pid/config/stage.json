@@ -1,0 +1,13 @@
+{
+  "stage_id": "00_foundation_and_pid",
+  "status": "GO",
+  "protocol_path": "../../../protocol/current.json",
+  "budget_steps": 0,
+  "training_seeds": [],
+  "evaluation_seed_partition": "none",
+  "controllers": ["pid"],
+  "scenarios": ["standard", "random_wind", "actuator_loss", "compound"],
+  "prerequisites": [],
+  "go_rule": "Archived frozen-PID raw SHA-256 and inherited runtime-contract payload hash both match the registered identities.",
+  "stop_rule": "Any frozen-PID identity mismatch blocks every later stage."
+}

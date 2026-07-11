@@ -1,1 +1,0 @@
-# Assets`n`nThe local checkout contains example images, GIFs, model assets, and other binary files. They are intentionally kept local and omitted from this public source snapshot.`n

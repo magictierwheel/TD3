@@ -1,9 +1,0 @@
-[1] VISUAL: White-background Simulink diagrams and MATLAB plots with regular fonts; small labels and Greek symbols are the main OCR risks.
-[2] DECISION: Direct grayscale/binary OCR is sufficient; CRAFT/SAM are installed but unnecessary for clean engineering figures.
-[3] EXPERIMENT: Add-on check: detectTextCRAFT - INSTALLED
-[4] EXPERIMENT: Add-on check: imsegsam - INSTALLED
-[5] EXPERIMENT: Add-on check: ocr - INSTALLED
-[6] RESULT: quadrotor_standard_top_level.png mean confidence 0.585, CER 0.977, WER 1.000, words 89
-[7] RESULT: hover_tracking_and_rotor.png mean confidence 0.769, CER 0.784, WER 0.918, words 97
-[8] RESULT: point_to_point_environment_inputs.png mean confidence 0.735, CER 0.701, WER 0.888, words 89
-[9] DECISION: OCR output saved to audit/ocr_figure_text.csv for figure-readability evidence; manual review remains required for symbols and numeric curves.

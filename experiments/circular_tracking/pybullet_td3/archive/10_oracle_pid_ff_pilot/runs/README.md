@@ -1,0 +1,1 @@
+The complete historical Oracle/PID-FF result set remains in the untouched local main-worktree copy. It is not copied into this repository snapshot. The external source label is `main_worktree_td3_residual_paper`; its local result directory is approximately 1.93 GiB and remains outside Git.

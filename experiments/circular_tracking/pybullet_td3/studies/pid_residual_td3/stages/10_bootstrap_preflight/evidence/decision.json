@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "stage_id": "10_bootstrap_preflight",
+  "decision": "NO-GO",
+  "source_protocol": "v2.1.0",
+  "source_evidence": "../../../../../archive/31_hidden_disturbance_v2_1/evidence/legacy_layout/gate_3/gate_3_summary.json",
+  "reason": "Direct TD3 post-update episode length collapsed in both training seeds; Stage A remains unauthorized."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "contract": "inherited_frozen_pid_runtime_contract",
+  "parameters": {
+    "pid_target_step_limit": 0.0,
+    "pid_xy_d_scale": 1.25,
+    "pid_xy_p_scale": 1.0,
+    "reference_velocity_gain": 1.0
+  },
+  "pid_payload_hash": "624e86cf7452410e15608774d5630512bd8a7f48f5d4e8d30fd5a8dcca37b99a",
+  "derived_from": {
+    "path": "../../../archive/20_hidden_disturbance_v1/provenance/hidden_pid_frozen.schema4.json",
+    "raw_sha256": "c7530d2725d4c55b31252f89c1ed126ae140a35789b3c653b86e955165e48ef3",
+    "evaluation_git_sha": "f19e99103d2700b3a9bd5cb4baf9ec2e31b7385d",
+    "source_protocol_hash": "e6edc37f6f89ec6684917f71f20444dd45b6e745f299b8ea6bf165d71e294359",
+    "evidence_index_content_sha256": "c94b41c77eed7f10dcb1d319f347458dec00c2d9c4334ee22def536383f7b851"
+  }
+}

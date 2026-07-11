@@ -1,0 +1,13 @@
+# Stage 30 — Stage B (50k)
+
+- stage_id: `30_stage_b_50k`
+- status: `not_started`
+- protocol_path: `../../../protocol/current.json`
+- budget_steps: `50000`
+- training_seeds: `[0, 1, 2]`
+- evaluation_seed_partition: `validation_100_109`
+- controllers: `["pid", "residual_td3"]`
+- scenarios: `["standard", "random_wind", "actuator_loss", "compound"]`
+- prerequisites: `["20_stage_a_20k:GO"]`
+- go_rule: "Not evaluable until an authorized replacement protocol freezes a Stage B rule before training."
+- stop_rule: "Any Stage A result other than GO blocks execution."

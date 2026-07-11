@@ -1,0 +1,13 @@
+# Stage 50 — Final evaluation
+
+- stage_id: `50_final_evaluation`
+- status: `not_started`
+- protocol_path: `../../../protocol/current.json`
+- budget_steps: `0`
+- training_seeds: `[0, 1, 2, 3, 4]`
+- evaluation_seed_partition: `test_200_219_and_unseen_300_319`
+- controllers: `["pid", "residual_td3"]`
+- scenarios: `["standard", "random_wind", "actuator_loss", "compound"]`
+- prerequisites: `["40_stage_c_100k:GO"]`
+- go_rule: "No optimization or checkpoint selection is permitted; report every paired held-out and unseen result."
+- stop_rule: "Do not open test or unseen partitions before Stage C GO and protocol freeze."
