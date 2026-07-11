@@ -40,3 +40,18 @@ Checkpoint identity convention:
 - PID must record model checkpoint identity as `N/A`.
 
 See `stage_status.md` before starting or resuming work.
+
+## Public snapshot and local training artifacts
+
+This directory is kept in the same logical layout locally and on GitHub, but
+the public snapshot contains only reviewable, compact evidence. Complete local
+training runs may also contain replay buffers, model checkpoints, caches,
+videos, trajectories, and temporary trainer logs. Those artifacts stay on the
+local machine and are excluded by the repository `.gitignore`; they are not
+deleted and must not be force-added to Git.
+
+The small JSON/CSV manifests and the README placeholders are the authoritative
+public record of a run. A placeholder documents that the corresponding local
+directory exists; it is not a runnable model or a substitute for a checkpoint.
+See the repository-root `PROJECT_LAYOUT.json` for the complete inclusion and
+exclusion policy.
